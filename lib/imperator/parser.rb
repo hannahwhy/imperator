@@ -3,7 +3,8 @@ require 'imperator/ast'
 module Imperator
   class Parser < BasicObject
     attr_accessor :file
-    
+   
+    attr_reader :surveys
     attr_reader :current_answer
     attr_reader :current_dependency
     attr_reader :current_grid
@@ -16,6 +17,7 @@ module Imperator
     def initialize(file)
       self.file = file
 
+      @surveys = []
       @current_answer = nil
       @current_dependency = nil
       @current_grid = nil
@@ -32,15 +34,20 @@ module Imperator
 
     def survey(name, &block)
       @current_survey = Ast::Survey.new(name)
+      @surveys << @current_survey
 
-      instance_eval(&block)
+      _with_unwind do
+        instance_eval(&block)
+      end
     end
 
     def section(name, &block)
       @current_section = Ast::Section.new(name)
       @current_survey.sections << @current_section
 
-      instance_eval(&block)
+      _with_unwind do
+        instance_eval(&block)
+      end
     end
 
     def group(name, options = {}, &block)
