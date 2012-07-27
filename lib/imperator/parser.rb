@@ -68,13 +68,6 @@ module Imperator
       end
     end
 
-    def label(text)
-      label = Ast::Label.new(text)
-      label.prev = @current_question
-      @current_section.questions << label
-      @current_question = label
-    end
-
     def dependency(options = {})
       rule = options[:rule]
       dependency = Ast::Dependency.new(rule)
@@ -153,6 +146,14 @@ module Imperator
       end
     end
 
+    def _label(tag, text, options = {})
+      label = Ast::Label.new(text, tag)
+      label.options = options
+      label.prev = @current_question
+      @current_section.questions << label
+      @current_question = label
+    end
+
     def _question(tag, text, options = {})
       question = Ast::Question.new(text, tag, options)
       question.prev = @current_question
@@ -194,6 +195,8 @@ module Imperator
         _question(*args.unshift($1), &block)
       when /^a(?:nswer)?(?:_(.+))?$/
         _answer(*args.unshift($1), &block)
+      when /^l(?:abel)?(?:_(.+))?$/
+        _label(*args.unshift($1), &block)
       when /^condition(?:_(.+))$/
         _condition(*args.unshift($1), &block)
       else

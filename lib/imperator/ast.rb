@@ -16,7 +16,7 @@ module Imperator
       end
     end
 
-    class Label < Struct.new(:text, :dependencies)
+    class Label < Struct.new(:text, :tag, :options, :dependencies)
       attr_accessor :prev
 
       def initialize(*args)
