@@ -1,0 +1,7 @@
+Imperator - after the scout comes the army
+------------------------------------------
+
+Imperator is a bunch of hackery and investigation into a replacement for
+NUBIC's Surveyor.
+
+It is tested on Ruby 1.9.3 and JRuby 1.6.7.2 in 1.9 mode.
