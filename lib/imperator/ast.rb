@@ -8,7 +8,7 @@ module Imperator
       end
     end
 
-    class Section < Struct.new(:name, :questions)
+    class Section < Struct.new(:name, :options, :questions)
       def initialize(*args)
         super
 

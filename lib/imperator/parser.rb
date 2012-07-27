@@ -43,8 +43,9 @@ module Imperator
       end
     end
 
-    def section(name, &block)
+    def section(name, options = {}, &block)
       @current_section = Ast::Section.new(name)
+      @current_section.options = options
       @current_survey.sections << @current_section
 
       _with_unwind do
