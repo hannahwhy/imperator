@@ -183,11 +183,11 @@ module Imperator
     # I really wish Surveyor didn't do this. :(
     def method_missing(m, *args, &block)
       case m
-      when /^q(?:uestion)?(_.+)?$/
+      when /^q(?:uestion)?(?:_(.+))?$/
         _question(*args.unshift($1), &block)
-      when /^a(?:nswer)?(_.+)?$/
+      when /^a(?:nswer)?(?:_(.+))?$/
         _answer(*args.unshift($1), &block)
-      when /^condition(_.+)$/
+      when /^condition(?:_(.+))$/
         _condition(*args.unshift($1), &block)
       else
         super
