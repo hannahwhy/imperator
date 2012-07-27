@@ -26,7 +26,7 @@ module Imperator
       end
     end
 
-    class Question < Struct.new(:text, :order, :options, :answers, :dependencies)
+    class Question < Struct.new(:text, :tag, :options, :answers, :dependencies)
       attr_accessor :prev
 
       def initialize(*args)
@@ -37,7 +37,7 @@ module Imperator
       end
     end
 
-    class Answer < Struct.new(:text, :type, :order, :validations)
+    class Answer < Struct.new(:text, :type, :tag, :validations)
       attr_accessor :prev
 
       def initialize(*args)

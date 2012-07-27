@@ -146,16 +146,16 @@ module Imperator
       end
     end
 
-    def _question(order, text, options = {})
-      question = Ast::Question.new(text, order, options)
+    def _question(tag, text, options = {})
+      question = Ast::Question.new(text, tag, options)
       question.prev = @current_question
       @current_section.questions << question
       @current_question = question
       @current_answer = nil
     end
 
-    def _answer(order, text, type = nil, options = {})
-      answer = Ast::Answer.new(text, type, order)
+    def _answer(tag, text, type = nil, options = {})
+      answer = Ast::Answer.new(text, type, tag)
       answer.prev = @current_answer
 
       # In grids, there is no current question.
