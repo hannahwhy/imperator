@@ -8,6 +8,7 @@ module Imperator
     attr_reader :current_answer
     attr_reader :current_dependency
     attr_reader :current_grid
+    attr_reader :current_group
     attr_reader :current_question
     attr_reader :current_repeater
     attr_reader :current_section
@@ -21,6 +22,7 @@ module Imperator
       @current_answer = nil
       @current_dependency = nil
       @current_grid = nil
+      @current_group = nil
       @current_question = nil
       @current_repeater = nil
       @current_section = nil
@@ -58,7 +60,7 @@ module Imperator
       group.prev = @current_question
 
       _with_unwind do
-        @current_section = group
+        @current_group = group
         @current_question = nil
         @current_answer = nil
         instance_eval(&block)
@@ -77,9 +79,11 @@ module Imperator
       dependency = Ast::Dependency.new(rule)
       @current_dependency = dependency
 
-      # Is there a current question? If not, is there a grid or repeater?
+      # Is there a current question? If not, is there a group, grid, or repeater?
       if @current_question
         @current_question.dependencies << dependency
+      elsif @current_group
+        @current_group.dependencies << dependency
       elsif @current_grid
         @current_grid.dependencies << dependency
       elsif @current_repeater
@@ -127,6 +131,7 @@ module Imperator
         old_answer = @current_answer
         old_dependency = @current_dependency
         old_grid = @current_grid
+        old_group = @current_group
         old_question = @current_question
         old_repeater = @current_repeater
         old_section = @current_section
@@ -138,6 +143,7 @@ module Imperator
         @current_answer = old_answer
         @current_dependency = old_dependency
         @current_grid = old_grid
+        @current_group = old_group
         @current_question = old_question
         @current_repeater = old_repeater
         @current_section = old_section

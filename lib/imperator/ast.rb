@@ -58,11 +58,12 @@ module Imperator
     class Validation < Struct.new(:rule)
     end
     
-    class Group < Struct.new(:name, :display_type, :questions)
+    class Group < Struct.new(:name, :display_type, :questions, :dependencies)
       attr_accessor :prev
 
       def initialize(*args)
         self.questions ||= []
+        self.dependencies ||= []
       end
     end
 
