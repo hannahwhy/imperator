@@ -62,6 +62,8 @@ module Imperator
       attr_accessor :prev
 
       def initialize(*args)
+        super
+
         self.questions ||= []
         self.dependencies ||= []
       end

@@ -157,7 +157,15 @@ module Imperator
     def _question(tag, text, options = {})
       question = Ast::Question.new(text, tag, options)
       question.prev = @current_question
-      @current_section.questions << question
+
+      if @current_group
+        @current_group.questions << question
+      elsif @current_grid
+        @current_grid.questions << question
+      else
+        @current_section.questions << question
+      end
+
       @current_question = question
       @current_answer = nil
     end
