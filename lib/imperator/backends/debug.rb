@@ -19,13 +19,13 @@ module Imperator
       end
 
       def survey(s)
-        @buffer << "SURVEY START #{s.name}\n"
+        @buffer << "SURVEY START #{s.name} (#{s.uuid})\n"
         yield
         @buffer << "SURVEY END #{s.name}\n"
       end
 
       def section(se, s)
-        n = "#{s.name} - #{se.name}".upcase
+        n = "#{s.name} - #{se.name} (#{se.uuid})".upcase
 
         @buffer << n + "\n"
         @buffer << "-" * n.length
@@ -37,7 +37,7 @@ module Imperator
       end
 
       def grid(q, se)
-        @buffer << "GRID START\n"
+        @buffer << "GRID START (#{q.uuid})\n"
 
         maxlen = q.questions.max_by { |cq| cq.text.length }.text.length
 
@@ -50,7 +50,7 @@ module Imperator
       end
 
       def group(q, se)
-        @buffer << "GROUP START #{q.name}\n"
+        @buffer << "GROUP START #{q.name} (#{q.uuid})\n"
 
         q.questions.each { |cq| compiler.compile_question(cq, se) }
 
@@ -64,7 +64,7 @@ module Imperator
       def question(q, se)
         ident = q.tag.to_s
 
-        @buffer << "Q#{ident}: " + q.text + "\n"
+        @buffer << "Q#{ident}: " + q.text + " (#{q.uuid})\n"
 
         q.dependencies.each do |dep|
           @buffer << "Q#{ident} DEP: #{dep.rule}\n"
@@ -85,7 +85,7 @@ module Imperator
       end
 
       def answer(a, q)
-        @buffer << '  [ ] (' + a.tag.to_s + ') ' + a.text.to_s + "\n"
+        @buffer << '  [ ] (' + a.tag.to_s + ') ' + a.text.to_s + " (#{a.uuid})\n"
       end
     end
   end
