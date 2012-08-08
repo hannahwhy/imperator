@@ -2,7 +2,7 @@ require 'uuidtools'
 
 module Imperator
   module Ast
-    UUID_NAMESPACE = UUIDTools::UUID.parse('824f34c2-e19f-11e1-82ec-c82a14fffebb')
+    IMPERATOR_V0_NAMESPACE = UUIDTools::UUID.parse('824f34c2-e19f-11e1-82ec-c82a14fffebb')
 
     module Identifiable
       def identity
@@ -20,7 +20,7 @@ module Imperator
       end
 
       def uuid
-        UUIDTools::UUID.sha1_create(UUID_NAMESPACE, identity)
+        UUIDTools::UUID.sha1_create(IMPERATOR_V0_NAMESPACE, identity)
       end
     end
 
