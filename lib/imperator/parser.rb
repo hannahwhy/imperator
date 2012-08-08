@@ -35,7 +35,7 @@ module Imperator
       end
     end
 
-    def group(name, options = {}, &block)
+    def group(name = nil, options = {}, &block)
       group = Ast::Group.new(name, options)
       @current_node.questions << group
 
