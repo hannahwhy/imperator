@@ -12,7 +12,7 @@ module Imperator
     end
 
     def parse
-      instance_eval(::File.read(file))
+      instance_eval(::File.read(file), file)
     end
 
     def survey(name, &block)
