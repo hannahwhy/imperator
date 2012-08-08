@@ -5,7 +5,7 @@ require 'imperator/parser'
 require 'imperator/compiler'
 require 'imperator/backends/debug'
 
-file = File.expand_path('../kitchen_sink_survey.rb', __FILE__)
+file = ARGV[0]
 
 p = Imperator::Parser.new(file)
 p.parse
