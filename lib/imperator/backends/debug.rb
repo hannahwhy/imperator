@@ -8,6 +8,10 @@ module Imperator
         @buffer = ""
       end
 
+      def write
+        puts @buffer
+      end
+
       def logue
         @buffer << "PROLOGUE\n"
         yield

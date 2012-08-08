@@ -5,15 +5,19 @@ require 'imperator/parser'
 require 'imperator/compiler'
 require 'imperator/backends/debug'
 
+backend = Imperator::Backends::Debug
+rev = `git rev-parse HEAD`.chomp
+puts "Imperator #{rev} - backend: #{backend}"
+
 file = ARGV[0]
 
 p = Imperator::Parser.new(file)
 p.parse
 
 c = Imperator::Compiler.new(p.surveys)
-b = Imperator::Backends::Debug.new
+b = backend.new
 
 c.backend = b
 c.compile
 
-puts b.buffer
+b.write
