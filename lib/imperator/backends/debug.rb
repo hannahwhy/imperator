@@ -9,14 +9,15 @@ module Imperator
       end
 
       def logue
-        @buffer << "Prologue\n"
+        @buffer << "PROLOGUE\n"
         yield
-        @buffer << "Epilogue\n"
+        @buffer << "EPILOGUE\n"
       end
 
       def survey(s)
+        @buffer << "SURVEY START #{s.name}\n"
         yield
-        @buffer << "End survey #{s.name}\n"
+        @buffer << "SURVEY END #{s.name}\n"
       end
 
       def section(se, s)
