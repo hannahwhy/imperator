@@ -25,8 +25,8 @@ module Imperator
       end
     end
 
-    def section(name, &block)
-      section = Ast::Section.new(name)
+    def section(name, options = {}, &block)
+      section = Ast::Section.new(name, options)
       @current_node.sections << section
 
       _with_unwind do
