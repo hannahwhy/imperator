@@ -48,7 +48,15 @@ module Imperator
     def dependency(options = {})
       rule = options[:rule]
       dependency = Ast::Dependency.new(rule)
-      @current_question.dependencies << dependency
+
+      # Does this apply to a question?  If not, we'll apply it to the current
+      # node.
+      if @current_question
+        @current_question.dependencies << dependency
+      else
+        @current_node.dependencies << dependency
+      end
+
       @current_dependency = dependency
     end
 
