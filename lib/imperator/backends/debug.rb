@@ -40,10 +40,10 @@ module Imperator
         @buffer << "GRID START\n"
 
         maxlen = q.questions.max_by { |cq| cq.text.length }.text.length
-        
+
         @buffer << ' ' * (maxlen + 8) + q.answers.map(&:text).join('    ')
         @buffer << "\n"
-        
+
         q.questions.each { |cq| compiler.compile_question(cq, se) }
 
         @buffer << "GRID END\n"
