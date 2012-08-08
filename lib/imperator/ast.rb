@@ -17,8 +17,6 @@ module Imperator
     end
 
     class Label < Struct.new(:text, :tag, :options, :dependencies)
-      attr_accessor :prev
-
       def initialize(*args)
         super
 
@@ -27,8 +25,6 @@ module Imperator
     end
 
     class Question < Struct.new(:text, :tag, :options, :answers, :dependencies)
-      attr_accessor :prev
-
       def initialize(*args)
         super
 
@@ -38,8 +34,6 @@ module Imperator
     end
 
     class Answer < Struct.new(:text, :type, :tag, :validations)
-      attr_accessor :prev
-
       def initialize(*args)
         super
 
@@ -55,12 +49,15 @@ module Imperator
       end
     end
 
-    class Validation < Struct.new(:rule)
+    class Validation < Struct.new(:rule, :conditions)
+      def initialize(*args)
+        super
+
+        self.conditions ||= []
+      end
     end
     
-    class Group < Struct.new(:name, :display_type, :questions, :dependencies)
-      attr_accessor :prev
-
+    class Group < Struct.new(:name, :options, :questions, :dependencies)
       def initialize(*args)
         super
 
@@ -73,8 +70,6 @@ module Imperator
     end
 
     class Grid < Struct.new(:text, :questions, :answers)
-      attr_accessor :prev
-
       def initialize(*args)
         super
 
@@ -84,8 +79,6 @@ module Imperator
     end
 
     class Repeater < Struct.new(:text, :questions, :dependencies)
-      attr_accessor :prev
-
       def initialize(*args)
         super
 

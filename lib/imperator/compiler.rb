@@ -1,5 +1,9 @@
+require 'imperator/ast'
+
 module Imperator
   class Compiler
+    include Imperator::Ast
+
     attr_accessor :backend
 
     def initialize(surveys)
@@ -7,6 +11,8 @@ module Imperator
     end
 
     def compile
+      backend.compiler = self
+
       backend.logue do
         @surveys.each { |s| compile_survey(s) }
       end
@@ -25,19 +31,16 @@ module Imperator
     end
 
     def compile_question(q, se)
-      backend.question(q, se) do
-        if q.respond_to?(:questions)
-          q.questions.each { |cq| compile_question(cq, q) }
-        end
+      b = backend
 
-        if q.respond_to?(:answers)
-          q.answers.each { |a| compile_answer(a, q) }
-        end
+      case q
+      when Grid then b.grid(q, se)
+      when Group then b.group(q, se)
+      when Label then b.label(q, se)
+      when Question then b.question(q, se)
+      when Repeater then b.repeater(q, se)
+      else raise "Unknown question type #{q.class}"
       end
-    end
-
-    def compile_answer(a, q)
-      backend.answer(a, q)
     end
   end
 end

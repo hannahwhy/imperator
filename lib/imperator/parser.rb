@@ -3,31 +3,12 @@ require 'imperator/ast'
 module Imperator
   class Parser < BasicObject
     attr_accessor :file
-   
     attr_reader :surveys
-    attr_reader :current_answer
-    attr_reader :current_dependency
-    attr_reader :current_grid
-    attr_reader :current_group
-    attr_reader :current_question
-    attr_reader :current_repeater
-    attr_reader :current_section
-    attr_reader :current_survey
-    attr_reader :current_validation
 
     def initialize(file)
       self.file = file
 
       @surveys = []
-      @current_answer = nil
-      @current_dependency = nil
-      @current_grid = nil
-      @current_group = nil
-      @current_question = nil
-      @current_repeater = nil
-      @current_section = nil
-      @current_survey = nil
-      @current_validation = nil
     end
 
     def parse
@@ -35,35 +16,31 @@ module Imperator
     end
 
     def survey(name, &block)
-      @current_survey = Ast::Survey.new(name)
-      @surveys << @current_survey
+      survey = Ast::Survey.new(name)
+      @surveys << survey
 
       _with_unwind do
+        @current_node = survey
         instance_eval(&block)
       end
     end
 
-    def section(name, options = {}, &block)
-      @current_section = Ast::Section.new(name)
-      @current_section.options = options
-      @current_survey.sections << @current_section
+    def section(name, &block)
+      section = Ast::Section.new(name)
+      @current_node.sections << section
 
       _with_unwind do
+        @current_node = section
         instance_eval(&block)
       end
     end
 
     def group(name, options = {}, &block)
-      display_type = options[:display_type]
-
-      group = Ast::Group.new(name, display_type)
-      @current_section.questions << group
-      group.prev = @current_question
+      group = Ast::Group.new(name, options)
+      @current_node.questions << group
 
       _with_unwind do
-        @current_group = group
-        @current_question = nil
-        @current_answer = nil
+        @current_node = group
         instance_eval(&block)
       end
     end
@@ -72,123 +49,65 @@ module Imperator
       rule = options[:rule]
       dependency = Ast::Dependency.new(rule)
       @current_dependency = dependency
-
-      # Is there a current question? If not, is there a group, grid, or repeater?
-      if @current_question
-        @current_question.dependencies << dependency
-      elsif @current_group
-        @current_group.dependencies << dependency
-      elsif @current_grid
-        @current_grid.dependencies << dependency
-      elsif @current_repeater
-        @current_repeater.dependencies << dependency
-      else
-        _wtf(dependency)
-      end
     end
 
-    def validation(options = {})
-      rule = options[:rule]
-      validation = Ast::Validation.new(rule)
-      @current_validation = validation
-      @current_answer.validations << validation
-    end
-    
     def grid(text, &block)
       grid = Ast::Grid.new(text)
-      grid.prev = @current_question
-      @current_section.questions << grid
+      @current_node.questions << grid
 
       _with_unwind do
-        @current_grid = grid
-        @current_question = nil
-        @current_answer = nil
+        @current_question = grid
+        @current_node = grid
         instance_eval(&block)
       end
     end
 
     def repeater(text, &block)
       repeater = Ast::Repeater.new(text)
-      repeater.prev = @current_question
-      @current_section.questions << repeater
-
+      @current_node.questions << repeater
+      
       _with_unwind do
-        @current_repeater = repeater
-        @current_question = nil
-        @current_answer = nil
+        @current_node = repeater
         instance_eval(&block)
       end
     end
 
-    def _with_unwind
-      begin
-        old_answer = @current_answer
-        old_dependency = @current_dependency
-        old_grid = @current_grid
-        old_group = @current_group
-        old_question = @current_question
-        old_repeater = @current_repeater
-        old_section = @current_section
-        old_survey = @current_survey
-        old_validation = @current_validation
-        
-        yield
-      ensure
-        @current_answer = old_answer
-        @current_dependency = old_dependency
-        @current_grid = old_grid
-        @current_group = old_group
-        @current_question = old_question
-        @current_repeater = old_repeater
-        @current_section = old_section
-        @current_survey = old_survey
-        @current_validation = old_validation
-      end
+    def validation(options = {})
+      rule = options[:rule]
+      validation = Ast::Validation.new(rule)
+      @current_dependency = validation
     end
 
     def _label(tag, text, options = {})
-      label = Ast::Label.new(text, tag)
-      label.options = options
-      label.prev = @current_question
-      @current_section.questions << label
-      @current_question = label
+      _question(tag, text, options)
     end
 
     def _question(tag, text, options = {})
       question = Ast::Question.new(text, tag, options)
-      question.prev = @current_question
-
-      if @current_group
-        @current_group.questions << question
-      elsif @current_grid
-        @current_grid.questions << question
-      else
-        @current_section.questions << question
-      end
-
+      @current_node.questions << question
       @current_question = question
-      @current_answer = nil
     end
 
     def _answer(tag, text, type = nil, options = {})
       answer = Ast::Answer.new(text, type, tag)
-      answer.prev = @current_answer
-
-      # In grids, there is no current question.
-      if @current_question
-        @current_question.answers << answer
-      elsif @current_grid
-        @current_grid.answers << answer
-      else
-        _wtf(answer)
-      end
-
-      @current_answer = answer
+      @current_question.answers << answer
     end
 
     def _condition(label, *predicate)
       condition = Ast::Condition.new(label, predicate)
       @current_dependency.conditions << condition
+    end
+
+    def _with_unwind
+      old_dependency = @current_dependency
+      old_node = @current_node
+      old_question = @current_question
+
+      yield
+
+      @current_dependency = old_dependency
+      @current_node = old_node
+      @current_question = old_question
     end
 
     # Bailout method.
