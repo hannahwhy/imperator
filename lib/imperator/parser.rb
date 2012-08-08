@@ -48,6 +48,7 @@ module Imperator
     def dependency(options = {})
       rule = options[:rule]
       dependency = Ast::Dependency.new(rule)
+      @current_question.dependencies << dependency
       @current_dependency = dependency
     end
 
@@ -65,7 +66,7 @@ module Imperator
     def repeater(text, &block)
       repeater = Ast::Repeater.new(text)
       @current_node.questions << repeater
-      
+
       _with_unwind do
         @current_node = repeater
         instance_eval(&block)

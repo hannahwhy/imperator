@@ -58,14 +58,23 @@ module Imperator
       end
 
       def question(q, se)
-        @buffer << 'Q' + q.tag.to_s + ': ' + q.text + "\n"
-        
+        ident = q.tag.to_s
+
+        @buffer << "Q#{ident}: " + q.text + "\n"
+
+        q.dependencies.each do |dep|
+          @buffer << "Q#{ident} DEP: #{dep.rule}\n"
+          dep.conditions.each do |cond|
+            @buffer << "DEP #{dep.rule}: COND #{cond.label} #{cond.predicate}\n"
+          end
+        end
+
         q.answers.each { |a| answer(a, q) }
       end
 
       def repeater(q, se)
         @buffer << "REPEATER START #{q.text}\n"
-        
+
         q.questions.each { |cq| compiler.compile_question(cq, se) }
 
         @buffer << "REPEATER END #{q.text}\n"
