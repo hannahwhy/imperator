@@ -11,7 +11,7 @@ module Imperator
 
       def ident(o)
         case o
-        when NilClass, TrueClass, FalseClass, Symbol, String then o.to_s
+        when NilClass, TrueClass, FalseClass, Numeric, Symbol, String then o.to_s
         when Hash then o.keys.sort.map { |k| ident([k, o[k]]) }.flatten.join
         when Array then o.map { |v| ident(v) }.flatten.join
         when Struct then o.values.map { |v| ident(v) }.flatten.join
