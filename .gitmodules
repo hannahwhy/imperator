@@ -1,0 +1,3 @@
+[submodule "lib/imperator/backends/ember/ember.js"]
+	path = lib/imperator/backends/ember/ember.js
+	url = https://github.com/emberjs/ember.js.git
