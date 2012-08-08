@@ -85,7 +85,7 @@ module Imperator
       end
 
       def answer(a, q)
-        @buffer << '  [ ] ' + a.text.to_s + "\n"
+        @buffer << '  [ ] (' + a.tag.to_s + ') ' + a.text.to_s + "\n"
       end
     end
   end
