@@ -27,6 +27,7 @@ module Imperator
 
     def section(name, options = {}, &block)
       section = Ast::Section.new(name, options)
+      section.parent = @current_node
       @current_node.sections << section
 
       _with_unwind do
@@ -37,6 +38,7 @@ module Imperator
 
     def group(name = nil, options = {}, &block)
       group = Ast::Group.new(name, options)
+      group.parent = @current_node
       @current_node.questions << group
 
       _with_unwind do
@@ -52,8 +54,10 @@ module Imperator
       # Does this apply to a question?  If not, we'll apply it to the current
       # node.
       if @current_question
+        dependency.parent = @current_question
         @current_question.dependencies << dependency
       else
+        dependency.parent = @current_node
         @current_node.dependencies << dependency
       end
 
@@ -62,6 +66,7 @@ module Imperator
 
     def grid(text, &block)
       grid = Ast::Grid.new(text)
+      grid.parent = @current_node
       @current_node.questions << grid
 
       _with_unwind do
@@ -73,6 +78,7 @@ module Imperator
 
     def repeater(text, &block)
       repeater = Ast::Repeater.new(text)
+      repeater.parent = @current_node
       @current_node.questions << repeater
 
       _with_unwind do
@@ -84,6 +90,7 @@ module Imperator
     def validation(options = {})
       rule = options[:rule]
       validation = Ast::Validation.new(rule)
+      validation.parent = @current_dependency
       @current_dependency = validation
     end
 
@@ -93,17 +100,20 @@ module Imperator
 
     def _question(tag, text, options = {})
       question = Ast::Question.new(text, tag, options)
+      question.parent = @current_node
       @current_node.questions << question
       @current_question = question
     end
 
     def _answer(tag, text, type = nil, options = {})
       answer = Ast::Answer.new(text, type, tag)
+      answer.parent = @current_question
       @current_question.answers << answer
     end
 
     def _condition(label, *predicate)
       condition = Ast::Condition.new(label, predicate)
+      condition.parent = @current_dependency
       @current_dependency.conditions << condition
     end
 

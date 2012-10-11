@@ -27,6 +27,8 @@ module Imperator
     class Survey < Struct.new(:name, :sections)
       include Identifiable
 
+      attr_accessor :parent
+
       def initialize(*)
         super
 
@@ -36,6 +38,8 @@ module Imperator
 
     class Section < Struct.new(:name, :options, :questions)
       include Identifiable
+
+      attr_accessor :parent
 
       def initialize(*)
         super
@@ -47,6 +51,8 @@ module Imperator
     class Label < Struct.new(:text, :tag, :options, :dependencies)
       include Identifiable
 
+      attr_accessor :parent
+
       def initialize(*)
         super
 
@@ -56,6 +62,8 @@ module Imperator
 
     class Question < Struct.new(:text, :tag, :options, :answers, :dependencies)
       include Identifiable
+
+      attr_accessor :parent
 
       def initialize(*)
         super
@@ -68,6 +76,8 @@ module Imperator
     class Answer < Struct.new(:text, :type, :tag, :validations)
       include Identifiable
 
+      attr_accessor :parent
+
       def initialize(*)
         super
 
@@ -77,6 +87,8 @@ module Imperator
 
     class Dependency < Struct.new(:rule, :conditions)
       include Identifiable
+
+      attr_accessor :parent
 
       def initialize(*)
         super
@@ -88,6 +100,8 @@ module Imperator
     class Validation < Struct.new(:rule, :conditions)
       include Identifiable
 
+      attr_accessor :parent
+
       def initialize(*)
         super
 
@@ -97,6 +111,8 @@ module Imperator
     
     class Group < Struct.new(:name, :options, :questions, :dependencies)
       include Identifiable
+
+      attr_accessor :parent
 
       def initialize(*)
         super
@@ -108,10 +124,14 @@ module Imperator
 
     class Condition < Struct.new(:label, :predicate)
       include Identifiable
+
+      attr_accessor :parent
     end
 
     class Grid < Struct.new(:text, :questions, :answers)
       include Identifiable
+
+      attr_accessor :parent
 
       def initialize(*)
         super
@@ -123,6 +143,8 @@ module Imperator
 
     class Repeater < Struct.new(:text, :questions, :dependencies)
       include Identifiable
+
+      attr_accessor :parent
 
       def initialize(*)
         super

@@ -25,7 +25,7 @@ module Imperator
       end
 
       def section(se, s)
-        n = "#{s.name} - #{se.name} (#{se.uuid})".upcase
+        n = "#{s.name} - #{se.name} (#{se.uuid}) (parent: #{se.parent.uuid})".upcase
 
         @buffer << n + "\n"
         @buffer << "-" * n.length
@@ -37,7 +37,7 @@ module Imperator
       end
 
       def grid(q, se)
-        @buffer << "GRID START (#{q.uuid})\n"
+        @buffer << "GRID START (#{q.uuid}) (parent: #{q.parent.uuid})\n"
 
         maxlen = q.questions.max_by { |cq| cq.text.length }.text.length
 
@@ -50,7 +50,7 @@ module Imperator
       end
 
       def group(q, se)
-        @buffer << "GROUP START #{q.name} (#{q.uuid})\n"
+        @buffer << "GROUP START #{q.name} (#{q.uuid}) (parent: #{q.parent.uuid})\n"
 
         q.questions.each { |cq| compiler.compile_question(cq, se) }
 
@@ -64,7 +64,7 @@ module Imperator
       def question(q, se)
         ident = q.tag.to_s
 
-        @buffer << "Q#{ident}: " + q.text + " (#{q.uuid})\n"
+        @buffer << "Q#{ident}: " + q.text + " (#{q.uuid}) (parent: #{q.parent.uuid})\n"
 
         q.dependencies.each do |dep|
           @buffer << "Q#{ident} DEP: #{dep.rule}\n"
