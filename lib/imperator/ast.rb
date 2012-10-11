@@ -27,7 +27,7 @@ module Imperator
     class Survey < Struct.new(:name, :sections)
       include Identifiable
 
-      def initialize(*args)
+      def initialize(*)
         super
 
         self.sections ||= []
@@ -37,7 +37,7 @@ module Imperator
     class Section < Struct.new(:name, :options, :questions)
       include Identifiable
 
-      def initialize(*args)
+      def initialize(*)
         super
 
         self.questions ||= []
@@ -47,7 +47,7 @@ module Imperator
     class Label < Struct.new(:text, :tag, :options, :dependencies)
       include Identifiable
 
-      def initialize(*args)
+      def initialize(*)
         super
 
         self.dependencies ||= []
@@ -57,7 +57,7 @@ module Imperator
     class Question < Struct.new(:text, :tag, :options, :answers, :dependencies)
       include Identifiable
 
-      def initialize(*args)
+      def initialize(*)
         super
 
         self.answers ||= []
@@ -68,7 +68,7 @@ module Imperator
     class Answer < Struct.new(:text, :type, :tag, :validations)
       include Identifiable
 
-      def initialize(*args)
+      def initialize(*)
         super
 
         self.validations ||= []
@@ -78,7 +78,7 @@ module Imperator
     class Dependency < Struct.new(:rule, :conditions)
       include Identifiable
 
-      def initialize(*args)
+      def initialize(*)
         super
 
         self.conditions ||= []
@@ -88,7 +88,7 @@ module Imperator
     class Validation < Struct.new(:rule, :conditions)
       include Identifiable
 
-      def initialize(*args)
+      def initialize(*)
         super
 
         self.conditions ||= []
@@ -98,7 +98,7 @@ module Imperator
     class Group < Struct.new(:name, :options, :questions, :dependencies)
       include Identifiable
 
-      def initialize(*args)
+      def initialize(*)
         super
 
         self.questions ||= []
@@ -113,7 +113,7 @@ module Imperator
     class Grid < Struct.new(:text, :questions, :answers)
       include Identifiable
 
-      def initialize(*args)
+      def initialize(*)
         super
 
         self.answers ||= []
@@ -124,7 +124,7 @@ module Imperator
     class Repeater < Struct.new(:text, :questions, :dependencies)
       include Identifiable
 
-      def initialize(*args)
+      def initialize(*)
         super
 
         self.questions ||= []
