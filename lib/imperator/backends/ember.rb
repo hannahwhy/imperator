@@ -35,7 +35,7 @@ module Imperator
           |#{v_surveys} = []
         }.margin
 
-        @buffer << "\n"
+        newline
 
         yield
       end
@@ -46,7 +46,7 @@ module Imperator
           |#{v_surveys}.push #{ident(s)}
         }.margin
 
-        @buffer << "\n"
+        newline
 
         yield
       end
@@ -57,7 +57,7 @@ module Imperator
           |#{ident(s)}.sections.push #{ident(se)}
         }.margin
 
-        @buffer << "\n"
+        newline
 
         yield
       end
@@ -74,7 +74,7 @@ module Imperator
           |#{ident(se)}.questions.push #{ident(q)}
         }.margin
 
-        @buffer << "\n"
+        newline
 
         q.answers.each { |a| answer(a, q) }
       end
@@ -87,7 +87,7 @@ module Imperator
           |#{ident(q)}.answers.push #{c_answer}.create(tag: "#{a.tag}", text: "#{a.text}", uuid: "#{a.uuid}")
         }.margin
 
-        @buffer << "\n"
+        newline
       end
 
       def v_surveys
@@ -119,6 +119,10 @@ module Imperator
                              @serial += 1
                              "_v#{@serial}"
                            end
+      end
+
+      def newline
+        @buffer << "\n"
       end
     end
   end
