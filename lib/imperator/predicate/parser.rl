@@ -71,8 +71,6 @@
   main := qa | qn | qc | self;
 }%%
 
-require File.expand_path('../ast', __FILE__)
-
 module Imperator
   module Predicate
     class Parser

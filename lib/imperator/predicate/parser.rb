@@ -4,8 +4,6 @@
 # line 72 "parser.rl"
 
 
-require File.expand_path('../ast', __FILE__)
-
 module Imperator
   module Predicate
     class Parser
@@ -17,7 +15,7 @@ module Imperator
           stack = []
 
           
-# line 21 "parser.rb"
+# line 19 "parser.rb"
 begin
 	p ||= 0
 	pe ||= data.length
@@ -28,9 +26,9 @@ begin
 	act = 0
 end
 
-# line 87 "parser.rl"
+# line 85 "parser.rl"
           
-# line 34 "parser.rb"
+# line 32 "parser.rb"
 begin
 	_klen, _trans, _keys, _acts, _nacts = nil
 	_goto_level = 0
@@ -64,7 +62,7 @@ begin
 		begin
 ts = p
 		end
-# line 68 "parser.rb"
+# line 66 "parser.rb"
 		end # from state action switch
 	end
 	if _trigger_goto
@@ -265,7 +263,7 @@ end
  puts 'answer reference' end
 end 
 			end
-# line 269 "parser.rb"
+# line 267 "parser.rb"
 			end # action switch
 		end
 	end
@@ -290,7 +288,7 @@ when 13 then
 		begin
 act = 0
 		end
-# line 294 "parser.rb"
+# line 292 "parser.rb"
 		end # to state action switch
 	end
 	if _trigger_goto
@@ -324,7 +322,7 @@ when 2 then
 # line 23 "parser.rl"
 		begin
  puts "a: #{buffer}"; buffer.clear 		end
-# line 328 "parser.rb"
+# line 326 "parser.rb"
 		end # eof action switch
 	end
 	if _trigger_goto
@@ -338,12 +336,12 @@ end
 	end
 	end
 
-# line 88 "parser.rl"
+# line 86 "parser.rl"
         end
       end
 
       
-# line 347 "parser.rb"
+# line 345 "parser.rb"
 class << self
 	attr_accessor :_parser_actions
 	private :_parser_actions, :_parser_actions=
@@ -692,7 +690,7 @@ end
 self.parser_en_main = 1;
 
 
-# line 92 "parser.rl"
+# line 90 "parser.rl"
     end
   end
 end
