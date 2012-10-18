@@ -1,21 +1,32 @@
 
 # line 1 "parser.rl"
 
-# line 72 "parser.rl"
+# line 115 "parser.rl"
 
+
+require File.expand_path('../ast', __FILE__)
 
 module Imperator
   module Predicate
     class Parser
-      def self.parse(predicate)
-        new.tap do |parser|
-          data = predicate.join(' ')
-          buffer = ''
-          eof = data.length
-          stack = []
+      include Ast
 
-          
-# line 19 "parser.rb"
+      attr_accessor :a_tag
+      attr_accessor :q_tag
+      attr_accessor :value
+      attr_accessor :op
+      attr_accessor :lhs
+      attr_accessor :rhs
+
+      def self.parse(predicate)
+        parser = Parser.new
+        data = predicate.join(' ')
+        buffer = ''
+        eof = data.length
+        stack = []
+
+        
+# line 30 "parser.rb"
 begin
 	p ||= 0
 	pe ||= data.length
@@ -26,9 +37,9 @@ begin
 	act = 0
 end
 
-# line 85 "parser.rl"
-          
-# line 32 "parser.rb"
+# line 139 "parser.rl"
+        
+# line 43 "parser.rb"
 begin
 	_klen, _trans, _keys, _acts, _nacts = nil
 	_goto_level = 0
@@ -57,12 +68,12 @@ begin
 		_nacts -= 1
 		_acts += 1
 		case _parser_actions[_acts - 1]
-			when 14 then
+			when 19 then
 # line 1 "NONE"
 		begin
 ts = p
 		end
-# line 66 "parser.rb"
+# line 77 "parser.rb"
 		end # from state action switch
 	end
 	if _trigger_goto
@@ -133,72 +144,85 @@ when 0 then
 		begin
  buffer << data[p].ord 		end
 when 1 then
-# line 22 "parser.rl"
+# line 23 "parser.rl"
 		begin
- puts "q: #{buffer}"; buffer.clear 		end
+
+    parser.q_tag = buffer.dup
+    buffer.clear
+  		end
 when 3 then
-# line 24 "parser.rl"
+# line 33 "parser.rl"
 		begin
- puts "string: #{buffer}"; buffer.clear 		end
+
+    parser.value = buffer.dup
+    buffer.clear
+  		end
 when 4 then
-# line 25 "parser.rl"
+# line 38 "parser.rl"
 		begin
- puts 'jump to criterion scanner'; 	begin
+
+    parser.value = buffer.to_i
+    buffer.clear
+  		end
+when 5 then
+# line 43 "parser.rl"
+		begin
+ 	begin
 		stack[top] = cs
 		top+= 1
-		cs = 108
+		cs = 109
 		_trigger_goto = true
 		_goto_level = _again
 		break
 	end
  		end
-when 5 then
-# line 27 "parser.rl"
-		begin
- puts "lt" 		end
 when 6 then
-# line 28 "parser.rl"
+# line 45 "parser.rl"
 		begin
- puts "le" 		end
+ parser.op = Lt.new 		end
 when 7 then
-# line 29 "parser.rl"
+# line 46 "parser.rl"
 		begin
- puts "eq" 		end
+ parser.op = Le.new 		end
 when 8 then
-# line 30 "parser.rl"
+# line 47 "parser.rl"
 		begin
- puts "ne" 		end
+ parser.op = Eq.new 		end
 when 9 then
-# line 31 "parser.rl"
+# line 48 "parser.rl"
 		begin
- puts "ge" 		end
+ parser.op = Ne.new 		end
 when 10 then
-# line 32 "parser.rl"
+# line 49 "parser.rl"
 		begin
- puts "gt" 		end
+ parser.op = Ge.new 		end
 when 11 then
-# line 33 "parser.rl"
+# line 50 "parser.rl"
 		begin
- puts "ma" 		end
-when 15 then
+ parser.op = Gt.new 		end
+when 12 then
+# line 51 "parser.rl"
+		begin
+ parser.op = Ma.new 		end
+when 20 then
 # line 1 "NONE"
 		begin
 te = p+1
 		end
-when 16 then
-# line 51 "parser.rl"
+when 21 then
+# line 70 "parser.rl"
 		begin
 act = 1;		end
-when 17 then
-# line 53 "parser.rl"
+when 22 then
+# line 78 "parser.rl"
 		begin
 act = 3;		end
-when 18 then
-# line 54 "parser.rl"
+when 23 then
+# line 82 "parser.rl"
 		begin
 act = 4;		end
-when 19 then
-# line 56 "parser.rl"
+when 24 then
+# line 87 "parser.rl"
 		begin
 te = p+1
  begin  	begin
@@ -210,37 +234,45 @@ te = p+1
 	end
   end
 		end
-when 20 then
-# line 51 "parser.rl"
+when 25 then
+# line 70 "parser.rl"
 		begin
 te = p
-p = p - 1; begin  puts 'string value'  end
+p = p - 1; begin 
+        parser.rhs = StringValue.new(parser.value)
+     end
 		end
-when 21 then
-# line 52 "parser.rl"
+when 26 then
+# line 74 "parser.rl"
 		begin
 te = p
-p = p - 1; begin  puts 'integer value'  end
+p = p - 1; begin 
+        parser.rhs = IntegerValue.new(parser.value)
+     end
 		end
-when 22 then
-# line 53 "parser.rl"
+when 27 then
+# line 78 "parser.rl"
 		begin
 te = p
-p = p - 1; begin  puts 'regexp'  end
+p = p - 1; begin 
+        parser.rhs = RegexpValue.new(parser.value)
+     end
 		end
-when 23 then
-# line 54 "parser.rl"
+when 28 then
+# line 82 "parser.rl"
 		begin
 te = p
-p = p - 1; begin  puts 'answer reference'  end
+p = p - 1; begin 
+        parser.a_tag = parser.value
+     end
 		end
-when 24 then
-# line 55 "parser.rl"
+when 29 then
+# line 86 "parser.rl"
 		begin
 te = p
 p = p - 1; begin   end
 		end
-when 25 then
+when 30 then
 # line 1 "NONE"
 		begin
 	case act
@@ -254,16 +286,22 @@ when 25 then
 end
 	when 1 then
 	begin begin p = ((te))-1; end
- puts 'string value' end
+
+        parser.rhs = StringValue.new(parser.value)
+    end
 	when 3 then
 	begin begin p = ((te))-1; end
- puts 'regexp' end
+
+        parser.rhs = RegexpValue.new(parser.value)
+    end
 	when 4 then
 	begin begin p = ((te))-1; end
- puts 'answer reference' end
+
+        parser.a_tag = parser.value
+    end
 end 
 			end
-# line 267 "parser.rb"
+# line 305 "parser.rb"
 			end # action switch
 		end
 	end
@@ -279,16 +317,16 @@ end
 		_nacts -= 1
 		_acts += 1
 		case _parser_actions[_acts - 1]
-when 12 then
+when 17 then
 # line 1 "NONE"
 		begin
 ts = nil;		end
-when 13 then
+when 18 then
 # line 1 "NONE"
 		begin
 act = 0
 		end
-# line 292 "parser.rb"
+# line 330 "parser.rb"
 		end # to state action switch
 	end
 	if _trigger_goto
@@ -319,10 +357,48 @@ act = 0
 		__acts += 1
 		case _parser_actions[__acts - 1]
 when 2 then
-# line 23 "parser.rl"
+# line 28 "parser.rl"
 		begin
- puts "a: #{buffer}"; buffer.clear 		end
-# line 326 "parser.rb"
+
+    parser.a_tag = buffer.dup
+    buffer.clear
+  		end
+when 4 then
+# line 38 "parser.rl"
+		begin
+
+    parser.value = buffer.to_i
+    buffer.clear
+  		end
+when 13 then
+# line 91 "parser.rl"
+		begin
+
+    parser.lhs = Question.new(parser.q_tag)
+    parser.rhs = Answer.new(parser.a_tag)
+  		end
+when 14 then
+# line 97 "parser.rl"
+		begin
+
+    parser.lhs = AnswerCount.new(parser.q_tag)
+    parser.rhs = IntegerValue.new(parser.value)
+  		end
+when 15 then
+# line 103 "parser.rl"
+		begin
+
+    parser.lhs = Question.new(parser.q_tag)
+    parser.rhs.a_tag = parser.a_tag
+  		end
+when 16 then
+# line 109 "parser.rl"
+		begin
+
+    parser.lhs = Question.new(:self)
+    parser.rhs.a_tag = parser.a_tag
+  		end
+# line 402 "parser.rb"
 		end # eof action switch
 	end
 	if _trigger_goto
@@ -336,25 +412,32 @@ end
 	end
 	end
 
-# line 86 "parser.rl"
-        end
+# line 140 "parser.rl"
+
+        parser.op.lhs = parser.lhs
+        parser.op.rhs = parser.rhs
+        parser.op
       end
 
       
-# line 345 "parser.rb"
+# line 424 "parser.rb"
 class << self
 	attr_accessor :_parser_actions
 	private :_parser_actions, :_parser_actions=
 end
 self._parser_actions = [
-	0, 1, 0, 1, 1, 1, 2, 1, 
-	4, 1, 5, 1, 6, 1, 7, 1, 
-	8, 1, 9, 1, 10, 1, 11, 1, 
-	12, 1, 14, 1, 19, 1, 21, 1, 
-	23, 1, 24, 1, 25, 2, 3, 20, 
-	2, 3, 22, 2, 3, 23, 2, 12, 
-	13, 3, 15, 0, 16, 3, 15, 0, 
-	17, 3, 15, 0, 18
+	0, 1, 0, 1, 1, 1, 5, 1, 
+	6, 1, 7, 1, 8, 1, 9, 1, 
+	10, 1, 11, 1, 12, 1, 15, 1, 
+	16, 1, 17, 1, 19, 1, 24, 1, 
+	29, 1, 30, 2, 2, 13, 2, 3, 
+	25, 2, 3, 27, 2, 3, 28, 2, 
+	4, 14, 2, 4, 26, 2, 4, 28, 
+	2, 6, 0, 2, 7, 0, 2, 8, 
+	0, 2, 9, 0, 2, 10, 0, 2, 
+	11, 0, 2, 12, 0, 2, 17, 18, 
+	3, 20, 0, 21, 3, 20, 0, 22, 
+	3, 20, 0, 23
 ]
 
 class << self
@@ -363,20 +446,20 @@ class << self
 end
 self._parser_key_offsets = [
 	0, 0, 5, 6, 9, 10, 14, 17, 
-	19, 22, 25, 29, 32, 33, 39, 48, 
-	53, 54, 57, 59, 60, 66, 70, 73, 
-	75, 78, 81, 85, 88, 89, 90, 91, 
-	92, 99, 100, 105, 110, 116, 121, 123, 
-	128, 133, 139, 144, 148, 149, 150, 151, 
-	152, 153, 154, 155, 156, 157, 158, 159, 
-	160, 161, 162, 163, 164, 165, 168, 170, 
-	172, 173, 174, 175, 176, 177, 178, 179, 
-	180, 181, 182, 183, 184, 185, 186, 188, 
-	189, 190, 191, 192, 193, 194, 195, 196, 
-	198, 200, 201, 202, 203, 204, 205, 206, 
-	207, 208, 209, 210, 211, 212, 213, 214, 
-	216, 218, 218, 224, 226, 229, 232, 232, 
-	234, 236, 238, 238, 240, 240
+	19, 22, 25, 29, 32, 33, 40, 50, 
+	55, 56, 59, 61, 62, 69, 73, 76, 
+	78, 81, 84, 88, 91, 92, 93, 94, 
+	95, 102, 103, 108, 113, 119, 124, 126, 
+	131, 136, 142, 147, 151, 152, 153, 154, 
+	155, 156, 157, 158, 159, 160, 161, 162, 
+	163, 164, 165, 166, 167, 168, 171, 173, 
+	175, 176, 177, 178, 179, 180, 181, 182, 
+	183, 184, 185, 186, 187, 188, 189, 191, 
+	192, 193, 194, 195, 196, 197, 198, 199, 
+	201, 203, 204, 205, 206, 207, 208, 209, 
+	210, 211, 212, 213, 214, 215, 216, 217, 
+	219, 221, 221, 228, 228, 230, 233, 236, 
+	236, 238, 240, 242, 242, 244, 244
 ]
 
 class << self
@@ -388,33 +471,33 @@ self._parser_trans_keys = [
 	13, 123, 32, 61, 9, 13, 32, 9, 
 	13, 61, 126, 32, 9, 13, 32, 9, 
 	13, 32, 61, 9, 13, 32, 9, 13, 
-	95, 48, 57, 65, 90, 97, 122, 32, 
-	9, 13, 48, 57, 65, 90, 97, 122, 
-	33, 60, 61, 62, 99, 61, 32, 9, 
-	13, 97, 123, 95, 48, 57, 65, 90, 
-	97, 122, 32, 61, 9, 13, 32, 9, 
-	13, 61, 126, 32, 9, 13, 32, 9, 
-	13, 32, 61, 9, 13, 32, 9, 13, 
-	111, 117, 110, 116, 32, 33, 60, 61, 
-	62, 9, 13, 61, 32, 9, 13, 48, 
-	57, 32, 9, 13, 48, 57, 32, 61, 
+	95, 95, 48, 57, 65, 90, 97, 122, 
+	32, 95, 9, 13, 48, 57, 65, 90, 
+	97, 122, 33, 60, 61, 62, 99, 61, 
+	32, 9, 13, 97, 123, 95, 95, 48, 
+	57, 65, 90, 97, 122, 32, 61, 9, 
+	13, 32, 9, 13, 61, 126, 32, 9, 
+	13, 32, 9, 13, 32, 61, 9, 13, 
+	32, 9, 13, 111, 117, 110, 116, 32, 
+	33, 60, 61, 62, 9, 13, 61, 32, 
 	9, 13, 48, 57, 32, 9, 13, 48, 
-	57, 61, 126, 32, 9, 13, 48, 57, 
-	32, 9, 13, 48, 57, 32, 61, 9, 
+	57, 32, 61, 9, 13, 48, 57, 32, 
+	9, 13, 48, 57, 61, 126, 32, 9, 
 	13, 48, 57, 32, 9, 13, 48, 57, 
-	97, 105, 114, 115, 110, 115, 119, 101, 
-	114, 95, 114, 101, 102, 101, 114, 101, 
-	110, 99, 101, 61, 62, 34, 48, 57, 
-	34, 92, 34, 92, 110, 116, 101, 103, 
-	101, 114, 95, 118, 97, 108, 117, 101, 
-	61, 62, 48, 57, 101, 103, 101, 120, 
-	112, 61, 62, 34, 34, 92, 34, 92, 
-	116, 114, 105, 110, 103, 95, 118, 97, 
-	108, 117, 101, 61, 62, 34, 34, 92, 
-	34, 92, 48, 57, 65, 90, 97, 122, 
-	48, 57, 44, 58, 125, 32, 9, 13, 
-	34, 92, 48, 57, 48, 57, 34, 92, 
-	34, 92, 0
+	32, 61, 9, 13, 48, 57, 32, 9, 
+	13, 48, 57, 97, 105, 114, 115, 110, 
+	115, 119, 101, 114, 95, 114, 101, 102, 
+	101, 114, 101, 110, 99, 101, 61, 62, 
+	34, 48, 57, 34, 92, 34, 92, 110, 
+	116, 101, 103, 101, 114, 95, 118, 97, 
+	108, 117, 101, 61, 62, 48, 57, 101, 
+	103, 101, 120, 112, 61, 62, 34, 34, 
+	92, 34, 92, 116, 114, 105, 110, 103, 
+	95, 118, 97, 108, 117, 101, 61, 62, 
+	34, 34, 92, 34, 92, 95, 48, 57, 
+	65, 90, 97, 122, 48, 57, 44, 58, 
+	125, 32, 9, 13, 34, 92, 48, 57, 
+	48, 57, 34, 92, 34, 92, 0
 ]
 
 class << self
@@ -423,8 +506,8 @@ class << self
 end
 self._parser_single_lengths = [
 	0, 5, 1, 1, 1, 2, 1, 2, 
-	1, 1, 2, 1, 1, 0, 1, 5, 
-	1, 1, 2, 1, 0, 2, 1, 2, 
+	1, 1, 2, 1, 1, 1, 2, 5, 
+	1, 1, 2, 1, 1, 2, 1, 2, 
 	1, 1, 2, 1, 1, 1, 1, 1, 
 	5, 1, 1, 1, 2, 1, 2, 1, 
 	1, 2, 1, 4, 1, 1, 1, 1, 
@@ -435,8 +518,8 @@ self._parser_single_lengths = [
 	1, 1, 1, 1, 1, 1, 1, 2, 
 	2, 1, 1, 1, 1, 1, 1, 1, 
 	1, 1, 1, 1, 1, 1, 1, 2, 
-	2, 0, 0, 0, 3, 1, 0, 2, 
-	0, 0, 0, 2, 0, 2
+	2, 0, 1, 0, 0, 3, 1, 0, 
+	2, 0, 0, 0, 2, 0, 2
 ]
 
 class << self
@@ -457,8 +540,8 @@ self._parser_range_lengths = [
 	0, 0, 0, 0, 0, 0, 0, 0, 
 	0, 0, 0, 0, 0, 0, 0, 0, 
 	0, 0, 0, 0, 0, 0, 0, 0, 
-	0, 0, 3, 1, 0, 1, 0, 0, 
-	1, 1, 0, 0, 0, 0
+	0, 0, 3, 0, 1, 0, 1, 0, 
+	0, 1, 1, 0, 0, 0, 0
 ]
 
 class << self
@@ -467,20 +550,20 @@ class << self
 end
 self._parser_index_offsets = [
 	0, 0, 6, 8, 11, 13, 17, 20, 
-	23, 26, 29, 33, 36, 38, 42, 48, 
-	54, 56, 59, 62, 64, 68, 72, 75, 
-	78, 81, 84, 88, 91, 93, 95, 97, 
-	99, 106, 108, 112, 116, 121, 125, 128, 
-	132, 136, 141, 145, 150, 152, 154, 156, 
-	158, 160, 162, 164, 166, 168, 170, 172, 
-	174, 176, 178, 180, 182, 184, 187, 190, 
-	193, 195, 197, 199, 201, 203, 205, 207, 
-	209, 211, 213, 215, 217, 219, 221, 223, 
-	225, 227, 229, 231, 233, 235, 237, 239, 
-	242, 245, 247, 249, 251, 253, 255, 257, 
-	259, 261, 263, 265, 267, 269, 271, 273, 
-	276, 279, 280, 284, 286, 290, 293, 294, 
-	297, 299, 301, 302, 305, 306
+	23, 26, 29, 33, 36, 38, 43, 50, 
+	56, 58, 61, 64, 66, 71, 75, 78, 
+	81, 84, 87, 91, 94, 96, 98, 100, 
+	102, 109, 111, 115, 119, 124, 128, 131, 
+	135, 139, 144, 148, 153, 155, 157, 159, 
+	161, 163, 165, 167, 169, 171, 173, 175, 
+	177, 179, 181, 183, 185, 187, 190, 193, 
+	196, 198, 200, 202, 204, 206, 208, 210, 
+	212, 214, 216, 218, 220, 222, 224, 226, 
+	228, 230, 232, 234, 236, 238, 240, 242, 
+	245, 248, 250, 252, 254, 256, 258, 260, 
+	262, 264, 266, 268, 270, 272, 274, 276, 
+	279, 282, 283, 288, 289, 291, 295, 298, 
+	299, 302, 304, 306, 307, 310, 311
 ]
 
 class << self
@@ -493,42 +576,43 @@ self._parser_trans_targs = [
 	0, 4, 4, 0, 8, 9, 0, 4, 
 	4, 0, 4, 4, 0, 4, 11, 4, 
 	0, 4, 4, 0, 13, 0, 14, 14, 
-	14, 0, 15, 15, 14, 14, 14, 0, 
-	16, 21, 23, 26, 28, 0, 17, 0, 
-	18, 18, 0, 19, 105, 0, 20, 0, 
-	106, 106, 106, 0, 18, 22, 18, 0, 
-	18, 18, 0, 24, 25, 0, 18, 18, 
-	0, 18, 18, 0, 18, 27, 18, 0, 
-	18, 18, 0, 29, 0, 30, 0, 31, 
-	0, 32, 0, 32, 33, 36, 38, 41, 
-	32, 0, 34, 0, 35, 35, 107, 0, 
-	35, 35, 107, 0, 35, 37, 35, 107, 
-	0, 35, 35, 107, 0, 39, 40, 0, 
-	35, 35, 107, 0, 35, 35, 107, 0, 
-	35, 42, 35, 107, 0, 35, 35, 107, 
-	0, 44, 64, 79, 89, 0, 45, 0, 
-	46, 0, 47, 0, 48, 0, 49, 0, 
-	50, 0, 51, 0, 52, 0, 53, 0, 
-	54, 0, 55, 0, 56, 0, 57, 0, 
-	58, 0, 59, 0, 60, 0, 61, 0, 
-	62, 112, 0, 110, 63, 62, 111, 63, 
-	62, 65, 0, 66, 0, 67, 0, 68, 
-	0, 69, 0, 70, 0, 71, 0, 72, 
-	0, 73, 0, 74, 0, 75, 0, 76, 
-	0, 77, 0, 78, 0, 113, 0, 80, 
-	0, 81, 0, 82, 0, 83, 0, 84, 
-	0, 85, 0, 86, 0, 87, 0, 114, 
-	88, 87, 115, 88, 87, 90, 0, 91, 
-	0, 92, 0, 93, 0, 94, 0, 95, 
-	0, 96, 0, 97, 0, 98, 0, 99, 
-	0, 100, 0, 101, 0, 102, 0, 103, 
-	0, 116, 104, 103, 117, 104, 103, 0, 
-	106, 106, 106, 0, 107, 0, 109, 43, 
-	108, 0, 109, 109, 108, 108, 110, 63, 
-	62, 112, 108, 113, 108, 108, 114, 88, 
-	87, 108, 116, 104, 103, 108, 108, 108, 
-	108, 108, 108, 108, 108, 108, 108, 108, 
-	108, 108, 108, 108, 0
+	14, 14, 0, 15, 14, 15, 14, 14, 
+	14, 0, 16, 21, 23, 26, 28, 0, 
+	17, 0, 18, 18, 0, 19, 107, 0, 
+	20, 0, 106, 106, 106, 106, 0, 18, 
+	22, 18, 0, 18, 18, 0, 24, 25, 
+	0, 18, 18, 0, 18, 18, 0, 18, 
+	27, 18, 0, 18, 18, 0, 29, 0, 
+	30, 0, 31, 0, 32, 0, 32, 33, 
+	36, 38, 41, 32, 0, 34, 0, 35, 
+	35, 108, 0, 35, 35, 108, 0, 35, 
+	37, 35, 108, 0, 35, 35, 108, 0, 
+	39, 40, 0, 35, 35, 108, 0, 35, 
+	35, 108, 0, 35, 42, 35, 108, 0, 
+	35, 35, 108, 0, 44, 64, 79, 89, 
+	0, 45, 0, 46, 0, 47, 0, 48, 
+	0, 49, 0, 50, 0, 51, 0, 52, 
+	0, 53, 0, 54, 0, 55, 0, 56, 
+	0, 57, 0, 58, 0, 59, 0, 60, 
+	0, 61, 0, 62, 113, 0, 111, 63, 
+	62, 112, 63, 62, 65, 0, 66, 0, 
+	67, 0, 68, 0, 69, 0, 70, 0, 
+	71, 0, 72, 0, 73, 0, 74, 0, 
+	75, 0, 76, 0, 77, 0, 78, 0, 
+	114, 0, 80, 0, 81, 0, 82, 0, 
+	83, 0, 84, 0, 85, 0, 86, 0, 
+	87, 0, 115, 88, 87, 116, 88, 87, 
+	90, 0, 91, 0, 92, 0, 93, 0, 
+	94, 0, 95, 0, 96, 0, 97, 0, 
+	98, 0, 99, 0, 100, 0, 101, 0, 
+	102, 0, 103, 0, 117, 104, 103, 118, 
+	104, 103, 0, 106, 106, 106, 106, 0, 
+	0, 108, 0, 110, 43, 109, 0, 110, 
+	110, 109, 109, 111, 63, 62, 113, 109, 
+	114, 109, 109, 115, 88, 87, 109, 117, 
+	104, 103, 109, 109, 109, 109, 109, 109, 
+	109, 109, 109, 109, 109, 109, 109, 109, 
+	109, 0
 ]
 
 class << self
@@ -537,46 +621,47 @@ class << self
 end
 self._parser_trans_actions = [
 	0, 0, 0, 0, 0, 0, 0, 0, 
-	15, 15, 0, 7, 0, 9, 0, 9, 
-	0, 11, 11, 0, 0, 0, 0, 13, 
-	13, 0, 21, 21, 0, 19, 0, 19, 
-	0, 17, 17, 0, 0, 0, 1, 1, 
-	1, 0, 3, 3, 1, 1, 1, 0, 
+	13, 13, 0, 5, 0, 7, 0, 7, 
+	0, 9, 9, 0, 0, 0, 0, 11, 
+	11, 0, 19, 19, 0, 17, 0, 17, 
+	0, 15, 15, 0, 0, 0, 1, 1, 
+	1, 1, 0, 3, 1, 3, 1, 1, 
+	1, 0, 0, 0, 0, 0, 0, 0, 
+	0, 0, 13, 13, 0, 0, 5, 0, 
+	0, 0, 1, 1, 1, 1, 0, 7, 
+	0, 7, 0, 9, 9, 0, 0, 0, 
+	0, 11, 11, 0, 19, 19, 0, 17, 
+	0, 17, 0, 15, 15, 0, 0, 0, 
 	0, 0, 0, 0, 0, 0, 0, 0, 
-	15, 15, 0, 0, 7, 0, 0, 0, 
-	1, 1, 1, 0, 9, 0, 9, 0, 
-	11, 11, 0, 0, 0, 0, 13, 13, 
-	0, 21, 21, 0, 19, 0, 19, 0, 
-	17, 17, 0, 0, 0, 0, 0, 0, 
-	0, 0, 0, 0, 0, 0, 0, 0, 
-	0, 0, 0, 0, 15, 15, 15, 0, 
-	0, 0, 0, 0, 9, 0, 9, 9, 
-	0, 11, 11, 11, 0, 0, 0, 0, 
-	13, 13, 13, 0, 21, 21, 21, 0, 
-	19, 0, 19, 19, 0, 17, 17, 17, 
-	0, 0, 0, 0, 0, 0, 0, 0, 
-	0, 0, 0, 0, 0, 0, 0, 0, 
-	0, 0, 0, 0, 0, 0, 0, 0, 
+	0, 0, 0, 0, 0, 0, 0, 13, 
+	13, 65, 0, 0, 0, 1, 0, 7, 
+	0, 7, 56, 0, 9, 9, 59, 0, 
+	0, 0, 0, 11, 11, 62, 0, 19, 
+	19, 74, 0, 17, 0, 17, 71, 0, 
+	15, 15, 68, 0, 0, 0, 0, 0, 
 	0, 0, 0, 0, 0, 0, 0, 0, 
 	0, 0, 0, 0, 0, 0, 0, 0, 
-	0, 0, 0, 0, 1, 1, 57, 1, 
+	0, 0, 0, 0, 0, 0, 0, 0, 
+	0, 0, 0, 0, 0, 0, 0, 0, 
+	0, 0, 0, 0, 1, 0, 0, 1, 
+	1, 88, 1, 1, 0, 0, 0, 0, 
+	0, 0, 0, 0, 0, 0, 0, 0, 
+	0, 0, 0, 0, 0, 0, 0, 0, 
+	0, 0, 0, 0, 0, 0, 0, 0, 
 	1, 0, 0, 0, 0, 0, 0, 0, 
 	0, 0, 0, 0, 0, 0, 0, 0, 
+	0, 0, 0, 1, 1, 84, 1, 1, 
 	0, 0, 0, 0, 0, 0, 0, 0, 
 	0, 0, 0, 0, 0, 0, 0, 0, 
 	0, 0, 0, 0, 0, 0, 0, 0, 
-	0, 0, 0, 0, 0, 0, 0, 0, 
-	1, 1, 53, 1, 1, 0, 0, 0, 
-	0, 0, 0, 0, 0, 0, 0, 0, 
-	0, 0, 0, 0, 0, 0, 0, 0, 
-	0, 0, 0, 0, 0, 0, 0, 0, 
-	0, 0, 1, 1, 49, 1, 1, 0, 
-	1, 1, 1, 0, 0, 0, 0, 0, 
-	27, 0, 0, 0, 33, 43, 0, 1, 
-	1, 0, 31, 0, 29, 40, 0, 1, 
-	1, 37, 0, 1, 1, 35, 35, 35, 
-	35, 35, 35, 33, 43, 43, 31, 29, 
-	40, 40, 37, 37, 0
+	0, 0, 0, 0, 0, 1, 1, 80, 
+	1, 1, 0, 1, 1, 1, 1, 0, 
+	0, 1, 0, 0, 0, 29, 0, 0, 
+	0, 31, 44, 0, 1, 1, 1, 53, 
+	1, 50, 41, 0, 1, 1, 38, 0, 
+	1, 1, 33, 33, 33, 33, 33, 33, 
+	31, 44, 44, 53, 50, 41, 41, 38, 
+	38, 0
 ]
 
 class << self
@@ -584,7 +669,7 @@ class << self
 	private :_parser_to_state_actions, :_parser_to_state_actions=
 end
 self._parser_to_state_actions = [
-	0, 23, 0, 0, 0, 0, 0, 0, 
+	0, 25, 0, 0, 0, 0, 0, 0, 
 	0, 0, 0, 0, 0, 0, 0, 0, 
 	0, 0, 0, 0, 0, 0, 0, 0, 
 	0, 0, 0, 0, 0, 0, 0, 0, 
@@ -597,8 +682,8 @@ self._parser_to_state_actions = [
 	0, 0, 0, 0, 0, 0, 0, 0, 
 	0, 0, 0, 0, 0, 0, 0, 0, 
 	0, 0, 0, 0, 0, 0, 0, 0, 
-	0, 23, 0, 0, 46, 0, 0, 0, 
-	0, 0, 0, 0, 0, 0
+	0, 25, 0, 25, 0, 77, 0, 0, 
+	0, 0, 0, 0, 0, 0, 0
 ]
 
 class << self
@@ -619,8 +704,8 @@ self._parser_from_state_actions = [
 	0, 0, 0, 0, 0, 0, 0, 0, 
 	0, 0, 0, 0, 0, 0, 0, 0, 
 	0, 0, 0, 0, 0, 0, 0, 0, 
-	0, 0, 0, 0, 25, 0, 0, 0, 
-	0, 0, 0, 0, 0, 0
+	0, 0, 0, 0, 0, 27, 0, 0, 
+	0, 0, 0, 0, 0, 0, 0
 ]
 
 class << self
@@ -641,8 +726,8 @@ self._parser_eof_actions = [
 	0, 0, 0, 0, 0, 0, 0, 0, 
 	0, 0, 0, 0, 0, 0, 0, 0, 
 	0, 0, 0, 0, 0, 0, 0, 0, 
-	0, 0, 5, 0, 0, 0, 0, 0, 
-	0, 0, 0, 0, 0, 0
+	0, 23, 35, 21, 47, 0, 0, 0, 
+	0, 0, 0, 0, 0, 0, 0
 ]
 
 class << self
@@ -657,14 +742,14 @@ self._parser_eof_trans = [
 	0, 0, 0, 0, 0, 0, 0, 0, 
 	0, 0, 0, 0, 0, 0, 0, 0, 
 	0, 0, 0, 0, 0, 0, 0, 0, 
-	0, 0, 0, 0, 0, 0, 315, 315, 
+	0, 0, 0, 0, 0, 0, 320, 320, 
 	0, 0, 0, 0, 0, 0, 0, 0, 
 	0, 0, 0, 0, 0, 0, 0, 0, 
-	0, 0, 0, 0, 0, 0, 0, 315, 
-	315, 0, 0, 0, 0, 0, 0, 0, 
-	0, 0, 0, 0, 0, 0, 0, 315, 
-	315, 0, 0, 0, 0, 316, 318, 318, 
-	319, 320, 322, 322, 324, 324
+	0, 0, 0, 0, 0, 0, 0, 320, 
+	320, 0, 0, 0, 0, 0, 0, 0, 
+	0, 0, 0, 0, 0, 0, 0, 320, 
+	320, 0, 0, 0, 0, 0, 321, 323, 
+	323, 324, 325, 327, 327, 329, 329
 ]
 
 class << self
@@ -683,14 +768,14 @@ self.parser_error = 0;
 class << self
 	attr_accessor :parser_en_criterion
 end
-self.parser_en_criterion = 108;
+self.parser_en_criterion = 109;
 class << self
 	attr_accessor :parser_en_main
 end
 self.parser_en_main = 1;
 
 
-# line 90 "parser.rl"
+# line 147 "parser.rl"
     end
   end
 end

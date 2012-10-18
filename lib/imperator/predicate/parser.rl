@@ -19,21 +19,39 @@
   alphtype char;
 
   action buffer { buffer << fc }
-  action save_qref { puts "q: #{buffer}"; buffer.clear }
-  action save_aref { puts "a: #{buffer}"; buffer.clear }
-  action save_string { puts "string: #{buffer}"; buffer.clear }
-  action enter_criterion { puts 'jump to criterion scanner'; fcall criterion; }
 
-  action push_lt { puts "lt" }
-  action push_le { puts "le" }
-  action push_eq { puts "eq" }
-  action push_ne { puts "ne" }
-  action push_ge { puts "ge" }
-  action push_gt { puts "gt" }
-  action push_ma { puts "ma" }
+  action save_q_tag {
+    parser.q_tag = buffer.dup
+    buffer.clear
+  }
 
-  q_ref     = 'q_' alnum+ @buffer %save_qref;
-  a_ref     = 'a_' alnum+ @buffer %save_aref;
+  action save_a_tag {
+    parser.a_tag = buffer.dup
+    buffer.clear
+  }
+
+  action save_string {
+    parser.value = buffer.dup
+    buffer.clear
+  }
+
+  action save_integer {
+    parser.value = buffer.to_i
+    buffer.clear
+  }
+
+  action enter_criterion { fcall criterion; }
+
+  action push_lt { parser.op = Lt.new }
+  action push_le { parser.op = Le.new }
+  action push_eq { parser.op = Eq.new }
+  action push_ne { parser.op = Ne.new }
+  action push_ge { parser.op = Ge.new }
+  action push_gt { parser.op = Gt.new }
+  action push_ma { parser.op = Ma.new }
+
+  q_tag     = 'q_' (alnum | '_')+ @buffer %save_q_tag;
+  a_tag     = 'a_' (alnum | '_')+ @buffer %save_a_tag;
   arrow     = '=>';
   operator  = '<'  %push_lt |
               '<=' %push_le |
@@ -44,46 +62,85 @@
               '=~' %push_ma;
 
   string          = '"' ((any -- '"') | '\\"')* @buffer '"' %save_string;
+  integer         = digit+ @buffer %save_integer;
   start_criterion = '{' @enter_criterion;
   end_criterion   = '}';
 
   criterion := |*
-    ':string_value' arrow string => { puts 'string value' };
-    ':integer_value' arrow digit+ => { puts 'integer value' };
-    ':regexp' arrow string => { puts 'regexp' };
-    ':answer_reference' arrow (string | digit+) => { puts 'answer reference' };
+    ':string_value' arrow string => {
+        parser.rhs = StringValue.new(parser.value)
+    };
+
+    ':integer_value' arrow integer => {
+        parser.rhs = IntegerValue.new(parser.value)
+    };
+
+    ':regexp' arrow string => {
+        parser.rhs = RegexpValue.new(parser.value)
+    };
+
+    ':answer_reference' arrow (string | integer) => {
+        parser.a_tag = parser.value
+    };
+
     ',' space* => { };
     end_criterion => { fret; };
   *|;
 
   # Q answered with A
-  qa = q_ref space operator space a_ref;
+  qa = q_tag space operator space a_tag %{
+    parser.lhs = Question.new(parser.q_tag)
+    parser.rhs = Answer.new(parser.a_tag)
+  };
 
   # Q has at least this many answers
-  qn = q_ref space 'count' space* operator space* digit+;
+  qn = q_tag space 'count' space* operator space* integer %{
+    parser.lhs = AnswerCount.new(parser.q_tag)
+    parser.rhs = IntegerValue.new(parser.value)
+  };
 
   # One or more of Q's answers satisfies these criteria
-  qc = q_ref space operator space start_criterion;
+  qc = q_tag space operator space start_criterion %{
+    parser.lhs = Question.new(parser.q_tag)
+    parser.rhs.a_tag = parser.a_tag
+  };
 
   # The answer for this condition's question satisfies it
-  self = operator space start_criterion;
+  self = operator space start_criterion %{
+    parser.lhs = Question.new(:self)
+    parser.rhs.a_tag = parser.a_tag
+  };
 
   main := qa | qn | qc | self;
 }%%
 
+require File.expand_path('../ast', __FILE__)
+
 module Imperator
   module Predicate
     class Parser
-      def self.parse(predicate)
-        new.tap do |parser|
-          data = predicate.join(' ')
-          buffer = ''
-          eof = data.length
-          stack = []
+      include Ast
 
-          %% write init;
-          %% write exec;
-        end
+      attr_accessor :a_tag
+      attr_accessor :q_tag
+      attr_accessor :value
+      attr_accessor :op
+      attr_accessor :lhs
+      attr_accessor :rhs
+
+      def self.parse(predicate)
+        parser = Parser.new
+        data = predicate.join(' ')
+        buffer = ''
+        eof = data.length
+        stack = []
+
+        %% write init;
+        %% write exec;
+
+        parser.op.lhs = parser.lhs
+        parser.op.rhs = parser.rhs
+        parser.op
       end
 
       %% write data;
