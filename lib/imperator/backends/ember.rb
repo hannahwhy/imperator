@@ -1,3 +1,5 @@
+require 'erb'
+
 class String
   # Ripped from Facets Core.
   def margin(n=0)
@@ -27,10 +29,13 @@ module Imperator
       end
 
       def write
+        puts @runtime
         puts @buffer
       end
 
       def logue
+        generate_runtime
+
         @buffer << %Q{
           |#{v_surveys} = []
         }.margin
@@ -123,6 +128,15 @@ module Imperator
 
       def newline
         @buffer << "\n"
+      end
+
+      def generate_runtime
+        template_file = File.expand_path('../ember/runtime.coffee.erb', __FILE__)
+        template = File.read(template_file)
+
+        namespace = @namespace
+
+        @runtime = ERB.new(template).result(binding)
       end
     end
   end
