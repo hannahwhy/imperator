@@ -135,13 +135,17 @@ module Imperator
       end
     end
 
-    class Condition < Struct.new(:label, :raw_predicate, :predicate)
+    class Condition < Struct.new(:tag, :raw_predicate, :predicate)
       include Identifiable
 
       attr_accessor :parent
 
       def parse_predicate
         self.predicate = Predicate::Parser.parse(raw_predicate)
+      end
+
+      def ref
+        "c#{tag}" if tag
       end
     end
 
