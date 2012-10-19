@@ -1,4 +1,5 @@
 require 'uuidtools'
+require File.expand_path('../predicate/parser', __FILE__)
 
 module Imperator
   module Ast
@@ -126,6 +127,11 @@ module Imperator
       include Identifiable
 
       attr_accessor :parent
+      attr_accessor :parsed_predicate
+
+      def parse_predicate
+        self.parsed_predicate = Predicate::Parser.parse(predicate)
+      end
     end
 
     class Grid < Struct.new(:text, :questions, :answers)
