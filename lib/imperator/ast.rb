@@ -59,6 +59,10 @@ module Imperator
 
         self.dependencies ||= []
       end
+
+      def ref
+        "q#{tag}" if tag
+      end
     end
 
     class Question < Struct.new(:text, :tag, :options, :answers, :dependencies)
@@ -72,6 +76,10 @@ module Imperator
         self.answers ||= []
         self.dependencies ||= []
       end
+
+      def ref
+        "q#{tag}" if tag
+      end
     end
 
     class Answer < Struct.new(:text, :type, :tag, :validations)
@@ -83,6 +91,10 @@ module Imperator
         super
 
         self.validations ||= []
+      end
+
+      def ref
+        "a#{tag}" if tag
       end
     end
 
