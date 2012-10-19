@@ -135,14 +135,13 @@ module Imperator
       end
     end
 
-    class Condition < Struct.new(:label, :predicate)
+    class Condition < Struct.new(:label, :raw_predicate, :predicate)
       include Identifiable
 
       attr_accessor :parent
-      attr_accessor :parsed_predicate
 
       def parse_predicate
-        self.parsed_predicate = Predicate::Parser.parse(predicate)
+        self.predicate = Predicate::Parser.parse(raw_predicate)
       end
     end
 
