@@ -25,7 +25,7 @@ module Imperator
         @buffer = ""
         @namespace ||= 'App'
         @serial = 0
-        @serials = {}
+        @refs = {}
       end
 
       def write
@@ -47,8 +47,8 @@ module Imperator
 
       def survey(s)
         @buffer << %Q{
-          |#{ident(s)} = #{c_survey}.create(name: "#{s.name}", uuid: "#{s.uuid}")
-          |#{v_surveys}.push #{ident(s)}
+          |#{ref(s)} = #{c_survey}.create(name: "#{s.name}", uuid: "#{s.uuid}")
+          |#{v_surveys}.push #{ref(s)}
         }.margin
 
         newline
@@ -58,8 +58,8 @@ module Imperator
 
       def section(se, s)
         @buffer << %Q{
-          |#{ident(se)} = #{c_section}.create(name: "#{se.name}", uuid: "#{se.uuid}")
-          |#{ident(s)}.sections.push #{ident(se)}
+          |#{ref(se)} = #{c_section}.create(name: "#{se.name}", uuid: "#{se.uuid}")
+          |#{ref(s)}.sections.push #{ref(se)}
         }.margin
 
         newline
@@ -73,23 +73,57 @@ module Imperator
       def group(q, se)
       end
 
+      def repeater(q, se)
+      end
+
       def question(q, se)
         @buffer << %Q{
-          |#{ident(q)} = #{c_question}.create(tag: "#{q.tag}", text: "#{q.text}", uuid: "#{q.uuid}")
-          |#{ident(se)}.questions.push #{ident(q)}
+          |#{ref(q)} = #{c_question}.create(text: "#{q.text}", uuid: "#{q.uuid}")
+          |#{ref(se.survey)}.#{ref(q)} = #{ref(q)}
         }.margin
 
         newline
 
         q.answers.each { |a| answer(a, q) }
+        q.dependencies.each { |d| dependency(d, q, se.survey) }
       end
 
-      def repeater(q, se)
+      def label(l, se)
+        @buffer << %Q{
+          |#{ref(l)} = #{c_label}.create(text: "#{l.text}", uuid: "#{l.uuid}")
+          |#{ref(se.survey)}.#{ref(l)} = #{ref(l)}
+        }.margin
+
+        newline
       end
 
       def answer(a, q)
         @buffer << %Q{
-          |#{ident(q)}.answers.push #{c_answer}.create(tag: "#{a.tag}", text: "#{a.text}", uuid: "#{a.uuid}")
+          |#{ref(q)}.answers.#{ref(a)} = #{c_answer}.create(text: "#{a.text}", uuid: "#{a.uuid}")
+        }.margin
+
+        newline
+      end
+
+      def dependency(d, q, survey)
+        d.conditions.each { |c| condition(c, d, q) }
+
+        constituents = d.conditions.map { |c| "'#{ref(c)}'" }.join(',')
+
+        @buffer << %Q{
+          |#{ref(q)}.#{ref(d)} = (->
+          |).property(#{constituents})
+          |
+          |#{ref(survey)}.#{ref(d)} = #{ref(q)}.#{ref(d)}
+        }.margin
+
+        newline
+      end
+
+      def condition(c, d, q)
+        @buffer << %Q{
+          |#{ref(q)}.#{ref(d)}.#{ref(c)} = (->
+          |).property()
         }.margin
 
         newline
@@ -111,6 +145,10 @@ module Imperator
         "#{namespace}.Question"
       end
 
+      def c_label
+        "#{namespace}.Label"
+      end
+
       def c_answer
         "#{namespace}.Answer"
       end
@@ -119,11 +157,17 @@ module Imperator
         "#{namespace}.#{v.upcase}"
       end
 
-      def ident(node)
-        @serials[node] ||= begin
-                             @serial += 1
-                             "_v#{@serial}"
-                           end
+      def ref(node)
+        @refs[node] ||= gen_ref(node)
+      end
+
+      def gen_ref(node)
+        if node.respond_to?(:ref) && node.ref
+          node.ref
+        else
+          @serial += 1
+          "_v#{@serial}"
+        end
       end
 
       def newline

@@ -42,6 +42,8 @@ module Imperator
 
       attr_accessor :parent
 
+      alias_method :survey, :parent
+
       def initialize(*)
         super
 
