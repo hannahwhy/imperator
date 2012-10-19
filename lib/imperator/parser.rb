@@ -95,7 +95,10 @@ module Imperator
     end
 
     def _label(tag, text, options = {})
-      _question(tag, text, options)
+      question = Ast::Label.new(text, tag, options)
+      question.parent = @current_node
+      @current_node.questions << question
+      @current_question = question
     end
 
     def _question(tag, text, options = {})
