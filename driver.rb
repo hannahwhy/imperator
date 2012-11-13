@@ -4,8 +4,9 @@ require 'pp'
 require 'imperator/parser'
 require 'imperator/compiler'
 require 'imperator/backends/debug'
+require 'imperator/backends/ember'
 
-backend = Imperator::Backends::Debug
+backend = Imperator::Backends::Ember
 rev = `git rev-parse HEAD`.chomp
 puts "Imperator #{rev} - backend: #{backend}"
 
