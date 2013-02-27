@@ -69,7 +69,7 @@ module Imperator
         q.dependencies.each do |dep|
           @buffer << "Q#{ident} DEP: #{dep.rule}\n"
           dep.conditions.each do |cond|
-            @buffer << "DEP #{dep.rule}: COND #{cond.tag} #{cond.predicate}\n"
+            @buffer << "DEP #{dep.rule}: COND #{cond.tag} #{cond.parsed_condition}\n"
           end
         end
 

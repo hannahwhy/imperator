@@ -117,7 +117,7 @@ module Imperator
     def _condition(label, *predicate)
       condition = Ast::Condition.new(label, predicate)
       condition.parent = @current_dependency
-      condition.parse_predicate
+      condition.parse
       @current_dependency.conditions << condition
     end
 

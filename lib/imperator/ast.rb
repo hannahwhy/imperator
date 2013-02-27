@@ -1,5 +1,5 @@
+require 'imperator/condition_parsing'
 require 'uuidtools'
-require File.expand_path('../predicate/parser', __FILE__)
 
 module Imperator
   module Ast
@@ -137,14 +137,11 @@ module Imperator
       end
     end
 
-    class Condition < Struct.new(:tag, :raw_predicate, :predicate)
+    class Condition < Struct.new(:tag, :predicate)
       include Identifiable
+      include ConditionParsing
 
       attr_accessor :parent
-
-      def parse_predicate
-        self.predicate = Predicate::Parser.parse(raw_predicate)
-      end
 
       def ref
         "c#{tag}" if tag
