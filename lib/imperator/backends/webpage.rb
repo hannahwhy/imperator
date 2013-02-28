@@ -15,8 +15,8 @@ module Imperator
       alias_method :j, :survey_js
 
       def initialize
-        @survey_js = []
-        @survey_html = []
+        @survey_js = ""
+        @survey_html = ""
       end
 
       def write
