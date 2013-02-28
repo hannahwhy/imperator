@@ -1,4 +1,5 @@
 require 'imperator/condition_parsing'
+require 'imperator/rule_parsing'
 require 'uuidtools'
 
 module Imperator
@@ -25,7 +26,7 @@ module Imperator
       end
     end
 
-    class Survey < Struct.new(:name, :sections)
+    class Survey < Struct.new(:name, :options, :sections)
       include Identifiable
 
       attr_accessor :parent
@@ -102,6 +103,7 @@ module Imperator
 
     class Dependency < Struct.new(:rule, :conditions)
       include Identifiable
+      include RuleParsing
 
       attr_accessor :parent
 
@@ -114,6 +116,7 @@ module Imperator
 
     class Validation < Struct.new(:rule, :conditions)
       include Identifiable
+      include RuleParsing
 
       attr_accessor :parent
 

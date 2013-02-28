@@ -53,12 +53,14 @@ module Imperator
         @buffer << "GROUP START #{q.name} (#{q.uuid}) (parent: #{q.parent.uuid})\n"
 
         q.questions.each { |cq| compiler.compile_question(cq, se) }
+        dependencies(q)
 
         @buffer << "GROUP END #{q.name}\n"
       end
 
       def label(q, se)
         @buffer << q.text + "\n"
+        dependencies(q)
       end
 
       def question(q, se)
@@ -66,13 +68,7 @@ module Imperator
 
         @buffer << "Q#{ident}: " + q.text + " (#{q.uuid}) (parent: #{q.parent.uuid})\n"
 
-        q.dependencies.each do |dep|
-          @buffer << "Q#{ident} DEP: #{dep.rule}\n"
-          dep.conditions.each do |cond|
-            @buffer << "DEP #{dep.rule}: COND #{cond.tag} #{cond.parsed_condition}\n"
-          end
-        end
-
+        dependencies(q)
         q.answers.each { |a| answer(a, q) }
       end
 
@@ -80,12 +76,37 @@ module Imperator
         @buffer << "REPEATER START #{q.text}\n"
 
         q.questions.each { |cq| compiler.compile_question(cq, se) }
+        dependencies(q)
 
         @buffer << "REPEATER END #{q.text}\n"
       end
 
       def answer(a, q)
         @buffer << '  [ ] (' + a.tag.to_s + ') ' + a.text.to_s + " (#{a.uuid})\n"
+
+        validations(a)
+      end
+
+      def dependencies(o)
+        o.dependencies.each do |dep|
+          @buffer << "DEP: #{dep.parsed_rule.inspect}\n"
+
+          conditions(dep)
+        end
+      end
+
+      def validations(o)
+        o.validations.each do |v|
+          @buffer << "VALIDATION: #{v.parsed_rule.inspect}\n"
+
+          conditions(v)
+        end
+      end
+
+      def conditions(o)
+        o.conditions.each do |cond|
+          @buffer << "  COND #{cond.tag} #{cond.parsed_condition}\n"
+        end
       end
     end
   end

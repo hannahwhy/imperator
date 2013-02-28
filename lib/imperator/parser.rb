@@ -15,8 +15,8 @@ module Imperator
       instance_eval(::File.read(file), file)
     end
 
-    def survey(name, &block)
-      survey = Ast::Survey.new(name)
+    def survey(name, options = {}, &block)
+      survey = Ast::Survey.new(name, options)
       @surveys << survey
 
       _with_unwind do
@@ -61,6 +61,7 @@ module Imperator
         @current_node.dependencies << dependency
       end
 
+      dependency.parse_rule
       @current_dependency = dependency
     end
 
@@ -91,6 +92,8 @@ module Imperator
       rule = options[:rule]
       validation = Ast::Validation.new(rule)
       validation.parent = @current_dependency
+      validation.parse_rule
+      @current_answer.validations << validation
       @current_dependency = validation
     end
 
@@ -112,12 +115,13 @@ module Imperator
       answer = Ast::Answer.new(text, type, tag)
       answer.parent = @current_question
       @current_question.answers << answer
+      @current_answer = answer
     end
 
     def _condition(label, *predicate)
       condition = Ast::Condition.new(label, predicate)
       condition.parent = @current_dependency
-      condition.parse
+      condition.parse_condition
       @current_dependency.conditions << condition
     end
 
@@ -125,12 +129,14 @@ module Imperator
       old_dependency = @current_dependency
       old_node = @current_node
       old_question = @current_question
+      old_answer = @current_answer
 
       yield
 
       @current_dependency = old_dependency
       @current_node = old_node
       @current_question = old_question
+      @current_answer = old_answer
     end
 
     # Bailout method.

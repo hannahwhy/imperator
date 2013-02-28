@@ -158,7 +158,7 @@ module Imperator
 
     attr_reader :parsed_condition
 
-    def parse
+    def parse_condition
       # Find out which nodes apply; only one should.  If we get multiple
       # matches, it's a fatal error.
       ns = applicable(predicate)
