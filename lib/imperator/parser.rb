@@ -111,8 +111,8 @@ module Imperator
       @current_question = question
     end
 
-    def _answer(tag, text, type = nil, options = {})
-      answer = Ast::Answer.new(text, type, tag)
+    def _answer(tag, t1, t2 = nil, options = {})
+      answer = Ast::Answer.new(t1, t2, tag)
       answer.parent = @current_question
       @current_question.answers << answer
       @current_answer = answer

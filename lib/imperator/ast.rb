@@ -77,7 +77,7 @@ module Imperator
       end
     end
 
-    class Answer < Struct.new(:text, :type, :tag, :validations)
+    class Answer < Struct.new(:t1, :t2, :tag, :validations)
       include Identifiable
 
       attr_accessor :parent
@@ -86,6 +86,14 @@ module Imperator
         super
 
         self.validations ||= []
+      end
+
+      def text
+        t1.is_a?(String) ? t1 : ''
+      end
+
+      def type
+        t2 || (t1 if t1.is_a?(Symbol))
       end
     end
 

@@ -2,9 +2,13 @@
   <head>
     <title><%= survey_title %></title>
     <script src="file:///<%= asset_path('jquery.min.js') %>"></script>
+    <script src="file:///<%= asset_path('evaluator.js') %>"></script>
   </head>
   <body>
-    <script type="text/javascript">
+      <script type="text/javascript">
+      window.survey = {
+        sliderValues: {}
+      };
       <%= survey_js.join("\n") %>
     </script>
     <%= survey_html.join("\n") %>
