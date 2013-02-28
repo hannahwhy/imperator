@@ -1,0 +1,14 @@
+<html>
+  <head>
+    <title><%= survey_title %></title>
+    <script src="file:///<%= asset_path('jquery.min.js') %>"></script>
+  </head>
+  <body>
+    <script type="text/javascript">
+      <%= survey_js.join("\n") %>
+    </script>
+    <%= survey_html.join("\n") %>
+  </body>
+</html>
+
+<!-- Generation time: <%= elapsed %> seconds -->

@@ -4,8 +4,9 @@ require 'pp'
 require 'imperator/parser'
 require 'imperator/compiler'
 require 'imperator/backends/debug'
+require 'imperator/backends/webpage'
 
-backend = Imperator::Backends::Debug
+backend = Imperator::Backends.const_get(ENV['BACKEND'] || 'Debug')
 rev = `git rev-parse HEAD`.chomp
 puts "Imperator #{rev} - backend: #{backend}"
 
