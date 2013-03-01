@@ -31,7 +31,8 @@ module Imperator
       end
 
       def dependency(n, level, parent)
-        im n, "DEP #{n.parsed_rule.inspect}\n", level
+        str = rule_to_sexp(n.parsed_rule)
+        im n, "DEP #{str}\n", level
         yield
       end
 
@@ -102,6 +103,14 @@ module Imperator
 
       def im(n, msg, level)
         buffer << sprintf("%05d", n.line) << " " << ("  " * level) << msg
+      end
+
+      def rule_to_sexp(rule)
+        if rule.respond_to?(:conj)
+          "(#{rule.conj.op} #{rule_to_sexp(rule.left)} #{rule_to_sexp(rule.right)})"
+        elsif rule.respond_to?(:name)
+          rule.name
+        end
       end
     end
   end

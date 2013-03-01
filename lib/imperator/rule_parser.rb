@@ -360,19 +360,17 @@ attr_reader :ast
 
   module AST
     class Node; end
-    class And < Node
-      def initialize()
+    class Conj < Node
+      def initialize(op)
+        @op = op
       end
+      attr_reader :op
     end
     class Tag < Node
       def initialize(name)
         @name = name
       end
       attr_reader :name
-    end
-    class Or < Node
-      def initialize()
-      end
     end
     class Phrase < Node
       def initialize(left, conj, right)
@@ -385,14 +383,11 @@ attr_reader :ast
       attr_reader :right
     end
   end
-  def and_node()
-    AST::And.new()
+  def conj_node(op)
+    AST::Conj.new(op)
   end
   def ctag_node(name)
     AST::Tag.new(name)
-  end
-  def or_node()
-    AST::Or.new()
   end
   def phrase_node(left, conj, right)
     AST::Phrase.new(left, conj, right)
@@ -446,7 +441,7 @@ attr_reader :ast
     return _tmp
   end
 
-  # and = "and" {and_node}
+  # and = "and" {conj_node("and")}
   def _and
 
     _save = self.pos
@@ -456,7 +451,7 @@ attr_reader :ast
         self.pos = _save
         break
       end
-      @result = begin; and_node; end
+      @result = begin; conj_node("and"); end
       _tmp = true
       unless _tmp
         self.pos = _save
@@ -468,7 +463,7 @@ attr_reader :ast
     return _tmp
   end
 
-  # or = "or" {or_node}
+  # or = "or" {conj_node("or")}
   def _or
 
     _save = self.pos
@@ -478,7 +473,7 @@ attr_reader :ast
         self.pos = _save
         break
       end
-      @result = begin; or_node; end
+      @result = begin; conj_node("or"); end
       _tmp = true
       unless _tmp
         self.pos = _save
@@ -634,8 +629,8 @@ attr_reader :ast
   Rules[:_rp] = rule_info("rp", "\")\"")
   Rules[:_space] = rule_info("space", "/\\s/")
   Rules[:_term] = rule_info("term", "< /\\w+/ > {ctag_node(text)}")
-  Rules[:_and] = rule_info("and", "\"and\" {and_node}")
-  Rules[:_or] = rule_info("or", "\"or\" {or_node}")
+  Rules[:_and] = rule_info("and", "\"and\" {conj_node(\"and\")}")
+  Rules[:_or] = rule_info("or", "\"or\" {conj_node(\"or\")}")
   Rules[:_conj] = rule_info("conj", "(and | or)")
   Rules[:_phrase] = rule_info("phrase", "(phrase:l space+ conj:c space+ phrase:r {phrase_node(l, c, r)} | lp phrase rp | term)")
   Rules[:_root] = rule_info("root", "phrase:t { @ast = t }")

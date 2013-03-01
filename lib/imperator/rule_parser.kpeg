@@ -1,7 +1,6 @@
 %% name = RuleParser
 %% ctag_node = ast Tag(name)
-%% and_node = ast And
-%% or_node = ast Or
+%% conj_node = ast Conj(op)
 %% phrase_node = ast Phrase(left, conj, right)
 
 %%{
@@ -12,8 +11,8 @@ lp = "("
 rp = ")"
 space = /\s/
 term = < /\w+/ > ~ctag_node(text)
-and = "and" ~and_node
-or = "or" ~or_node
+and = "and" ~conj_node("and")
+or = "or" ~conj_node("or")
 conj = and | or
 phrase = (phrase:l space+ conj:c space+ phrase:r) ~phrase_node(l, c, r) | lp phrase rp | term
 
