@@ -158,6 +158,8 @@ module Imperator
         _answer(*args.unshift($1), &block)
       when /^l(?:abel)?(?:_(.+))?$/
         _label(*args.unshift($1), &block)
+      when /^dependency_.+$/
+        dependency(*args)
       when /^condition(?:_(.+))$/
         _condition(*args.unshift($1), &block)
       else
