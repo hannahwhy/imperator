@@ -47,11 +47,11 @@ module Imperator
 
     module Normalization
       def qref_as_tag(qref)
-        qref =~ /q_(.*)/ ? $1 : qref
+        (qref =~ /q_(.*)/ ? $1 : qref).to_s
       end
 
       def aref_as_tag(aref)
-        aref =~ /a_(.*)/ ? $1 : aref
+        (aref =~ /a_(.*)/ ? $1 : aref).to_s
       end
     end
 
@@ -114,6 +114,10 @@ module Imperator
 
         new(qtag, $1, $2.to_i)
       end
+
+      def atag
+        nil
+      end
     end
 
     class AnswerSatisfies < Struct.new(:qtag, :op, :atag, :criterion, :value)
@@ -146,6 +150,14 @@ module Imperator
         cri, value = criterion(pred[1])
 
         new(op, cri, value)
+      end
+
+      def qtag
+        nil
+      end
+
+      def atag
+        nil
       end
     end
 

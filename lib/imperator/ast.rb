@@ -26,7 +26,7 @@ module Imperator
       end
     end
 
-    class Survey < Struct.new(:name, :options, :sections)
+    class Survey < Struct.new(:line, :name, :options, :sections)
       include Identifiable
 
       attr_accessor :parent
@@ -42,7 +42,7 @@ module Imperator
       end
     end
 
-    class Section < Struct.new(:name, :options, :questions)
+    class Section < Struct.new(:line, :name, :options, :questions)
       include Identifiable
 
       attr_accessor :parent
@@ -60,7 +60,7 @@ module Imperator
       end
     end
 
-    class Label < Struct.new(:text, :tag, :options, :dependencies)
+    class Label < Struct.new(:line, :text, :tag, :options, :dependencies)
       include Identifiable
 
       attr_accessor :parent
@@ -76,7 +76,7 @@ module Imperator
       end
     end
 
-    class Question < Struct.new(:text, :tag, :options, :answers, :dependencies)
+    class Question < Struct.new(:line, :text, :tag, :options, :answers, :dependencies)
       include Identifiable
 
       attr_accessor :parent
@@ -93,7 +93,7 @@ module Imperator
       end
     end
 
-    class Answer < Struct.new(:t1, :t2, :tag, :validations)
+    class Answer < Struct.new(:line, :t1, :t2, :tag, :validations)
       include Identifiable
 
       attr_accessor :parent
@@ -117,7 +117,7 @@ module Imperator
       end
     end
 
-    class Dependency < Struct.new(:rule, :conditions)
+    class Dependency < Struct.new(:line, :rule, :conditions)
       include Identifiable
       include RuleParsing
 
@@ -134,7 +134,7 @@ module Imperator
       end
     end
 
-    class Validation < Struct.new(:rule, :conditions)
+    class Validation < Struct.new(:line, :rule, :conditions)
       include Identifiable
       include RuleParsing
 
@@ -151,7 +151,7 @@ module Imperator
       end
     end
     
-    class Group < Struct.new(:name, :options, :questions, :dependencies)
+    class Group < Struct.new(:line, :name, :options, :questions, :dependencies)
       include Identifiable
 
       attr_accessor :parent
@@ -168,7 +168,7 @@ module Imperator
       end
     end
 
-    class Condition < Struct.new(:tag, :predicate)
+    class Condition < Struct.new(:line, :tag, :predicate)
       include Identifiable
       include ConditionParsing
 
@@ -179,7 +179,7 @@ module Imperator
       end
     end
 
-    class Grid < Struct.new(:text, :questions, :answers)
+    class Grid < Struct.new(:line, :text, :questions, :answers)
       include Identifiable
 
       attr_accessor :parent
@@ -196,7 +196,7 @@ module Imperator
       end
     end
 
-    class Repeater < Struct.new(:text, :questions, :dependencies)
+    class Repeater < Struct.new(:line, :text, :questions, :dependencies)
       include Identifiable
 
       attr_accessor :parent
