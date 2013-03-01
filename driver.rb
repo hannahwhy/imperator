@@ -15,10 +15,9 @@ file = ARGV[0]
 p = Imperator::Parser.new(file)
 p.parse
 
-c = Imperator::Compiler.new(p.surveys)
 b = backend.new
+c = Imperator::Compiler.new(p.surveys, b)
 
-c.backend = b
 c.compile
 
 b.write

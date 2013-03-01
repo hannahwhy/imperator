@@ -36,6 +36,10 @@ module Imperator
 
         self.sections ||= []
       end
+
+      def children
+        sections
+      end
     end
 
     class Section < Struct.new(:name, :options, :questions)
@@ -50,6 +54,10 @@ module Imperator
 
         self.questions ||= []
       end
+
+      def children
+        questions
+      end
     end
 
     class Label < Struct.new(:text, :tag, :options, :dependencies)
@@ -61,6 +69,10 @@ module Imperator
         super
 
         self.dependencies ||= []
+      end
+
+      def children
+        dependencies
       end
     end
 
@@ -74,6 +86,10 @@ module Imperator
 
         self.answers ||= []
         self.dependencies ||= []
+      end
+
+      def children
+        answers + dependencies
       end
     end
 
@@ -95,6 +111,10 @@ module Imperator
       def type
         t2 || (t1 if t1.is_a?(Symbol))
       end
+
+      def children
+        validations
+      end
     end
 
     class Dependency < Struct.new(:rule, :conditions)
@@ -107,6 +127,10 @@ module Imperator
         super
 
         self.conditions ||= []
+      end
+
+      def children
+        conditions
       end
     end
 
@@ -121,6 +145,10 @@ module Imperator
 
         self.conditions ||= []
       end
+
+      def children
+        conditions
+      end
     end
     
     class Group < Struct.new(:name, :options, :questions, :dependencies)
@@ -134,6 +162,10 @@ module Imperator
         self.questions ||= []
         self.dependencies ||= []
       end
+
+      def children
+        questions + dependencies
+      end
     end
 
     class Condition < Struct.new(:tag, :predicate)
@@ -141,6 +173,10 @@ module Imperator
       include ConditionParsing
 
       attr_accessor :parent
+
+      def children
+        []
+      end
     end
 
     class Grid < Struct.new(:text, :questions, :answers)
@@ -154,6 +190,10 @@ module Imperator
         self.answers ||= []
         self.questions ||= []
       end
+
+      def children
+        questions + answers
+      end
     end
 
     class Repeater < Struct.new(:text, :questions, :dependencies)
@@ -166,6 +206,10 @@ module Imperator
 
         self.questions ||= []
         self.dependencies ||= []
+      end
+
+      def children
+        questions + dependencies
       end
     end
   end

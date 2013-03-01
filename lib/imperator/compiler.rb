@@ -1,45 +1,61 @@
+require 'fiber'
 require 'imperator/ast'
+require 'imperator/visitation'
 
 module Imperator
   class Compiler
     include Imperator::Ast
+    include Imperator::Visitation
 
-    attr_accessor :backend
+    attr_reader :backend
+    attr_reader :surveys
 
-    def initialize(surveys)
+    def initialize(surveys, backend)
+      @backend = backend
       @surveys = surveys
     end
 
     def compile
-      backend.compiler = self
+      backend.prologue
 
-      backend.logue do
-        @surveys.each { |s| compile_survey(s) }
+      stack = []
+
+      surveys.each do |s|
+        visit(s) do |n, level, prev, boundary|
+          m = backend_method_for(n)
+
+          if boundary == :enter
+            co = Fiber.new do
+              backend.send(m, n, level, prev) do
+                stack << Fiber.current
+                Fiber.yield
+              end
+            end
+
+            co.resume
+          elsif boundary == :exit
+            stack.pop.resume
+          end
+        end
       end
+      
+      backend.epilogue
     end
 
-    def compile_survey(s)
-      backend.survey(s) do
-        s.sections.each { |se| compile_section(se, s) }
-      end
-    end
-
-    def compile_section(se, s)
-      backend.section(se, s) do
-        se.questions.each { |q| compile_question(q, se) }
-      end
-    end
-
-    def compile_question(q, se)
-      b = backend
-
-      case q
-      when Grid then b.grid(q, se)
-      when Group then b.group(q, se)
-      when Label then b.label(q, se)
-      when Question then b.question(q, se)
-      when Repeater then b.repeater(q, se)
-      else raise "Unknown question type #{q.class}"
+    def backend_method_for(n)
+      case n
+      when Survey; :survey
+      when Section; :section
+      when Label; :label
+      when Question; :question
+      when Answer; :answer
+      when Dependency; :dependency
+      when Validation; :validation
+      when Group; :group
+      when Condition; :condition
+      when Grid; :grid
+      when Repeater; :repeater
+      else raise "Unhandled node type #{n.class}" unless m
       end
     end
   end
