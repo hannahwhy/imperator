@@ -20,13 +20,13 @@ module Imperator
           @abuf << n
           yield
         else
-          im n, "ANS #{n.tag || '(none)'}: #{n.text} (#{n.uuid}, type: #{n.type})\n", level
+          im n, "ANS #{tag(n)}: #{n.text} (#{n.uuid}, type: #{n.type})\n", level
           yield
         end
       end
 
       def condition(n, level, parent)
-        im n, "COND #{n.tag}: #{n.parsed_condition.inspect}\n", level
+        im n, "COND #{tag(n)}: #{n.parsed_condition.inspect}\n", level
         yield
       end
 
@@ -37,7 +37,7 @@ module Imperator
       end
 
       def grid(n, level, parent)
-        im n, "GRID #{n.uuid} START\n", level
+        im n, "GRID #{tag(n)} #{n.uuid} START\n", level
         @in_grid = true
         @qbuf = []
         @abuf = []
@@ -46,14 +46,14 @@ module Imperator
         im n, (" " * ms) + @abuf.map(&:text).join("  ") + "\n", level
         @qbuf.each { |q| im(q, "#{q.text}\n", level) }
         @in_grid = false
-        im n, "GRID #{n.uuid} END\n", level
+        im n, "GRID #{tag(n)} #{n.uuid} END\n", level
       end
 
       def group(n, level, parent)
-        im n, "GROUP #{(n.tag || '(none)')}: #{n.uuid} START\n", level
+        im n, "GROUP #{tag(n)}: #{n.uuid} START\n", level
         im n, "#{n.name}\n", level
         yield
-        im n, "GROUP #{(n.tag || '(none)')}: #{n.uuid} END\n", level
+        im n, "GROUP #{tag(n)}: #{n.uuid} END\n", level
       end
 
       def label(n, level, parent)
@@ -66,23 +66,23 @@ module Imperator
           @qbuf << n
           yield
         else
-          im n, "QUESTION #{n.uuid} #{n.tag} START\n", level
+          im n, "QUESTION #{tag(n)}: #{n.uuid} START\n", level
           im n, "#{n.text}\n", level
           yield
-          im n, "QUESTION #{n.uuid} #{n.tag} END\n", level
+          im n, "QUESTION #{tag(n)}: #{n.uuid} END\n", level
         end
       end
 
       def repeater(n, level, parent)
-        im n, "REPEATER #{n.uuid} START\n", level
+        im n, "REPEATER #{tag(n)}: #{n.uuid} START\n", level
         yield
-        im n, "REPEATER #{n.uuid} END\n", level
+        im n, "REPEATER #{tag(n)}: #{n.uuid} END\n", level
       end
 
       def section(n, level, parent)
-        im n, "SECTION #{n.tag || '(none)'}: #{n.name} #{n.uuid} START\n", level
+        im n, "SECTION #{tag(n)}: #{n.name} #{n.uuid} START\n", level
         yield
-        im n, "SECTION #{n.tag || '(none)'}: #{n.name} #{n.uuid} END\n", level
+        im n, "SECTION #{tag(n)}: #{n.name} #{n.uuid} END\n", level
       end
 
       def survey(n, level, parent)
@@ -116,6 +116,10 @@ module Imperator
         elsif rule.respond_to?(:name)
           rule.name
         end
+      end
+
+      def tag(n)
+        n.tag.empty? ? '(no tag)' : n.tag
       end
     end
   end

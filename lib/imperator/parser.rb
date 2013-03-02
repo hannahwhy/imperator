@@ -51,8 +51,17 @@ module Imperator
       @current_dependency = dependency
     end
 
-    def grid(text, &block)
-      grid = Ast::Grid.new(sline, text)
+    def validation(options = {})
+      rule = options[:rule]
+      validation = Ast::Validation.new(sline, rule)
+      validation.parent = @current_dependency
+      validation.parse_rule
+      @current_answer.validations << validation
+      @current_dependency = validation
+    end
+
+    def _grid(tag, text, &block)
+      grid = Ast::Grid.new(sline, tag.to_s, text)
       grid.parent = @current_node
       @current_node.questions << grid
 
@@ -63,8 +72,8 @@ module Imperator
       end
     end
 
-    def repeater(text, &block)
-      repeater = Ast::Repeater.new(sline, text)
+    def _repeater(tag, text, &block)
+      repeater = Ast::Repeater.new(sline, tag.to_s, text)
       repeater.parent = @current_node
       @current_node.questions << repeater
 
@@ -72,15 +81,6 @@ module Imperator
         @current_node = repeater
         instance_eval(&block)
       end
-    end
-
-    def validation(options = {})
-      rule = options[:rule]
-      validation = Ast::Validation.new(sline, rule)
-      validation.parent = @current_dependency
-      validation.parse_rule
-      @current_answer.validations << validation
-      @current_dependency = validation
     end
 
     def _label(tag, text, options = {})
@@ -112,7 +112,7 @@ module Imperator
     end
 
     def _group(tag, name = nil, options = {}, &block)
-      group = Ast::Group.new(sline, tag, name, options)
+      group = Ast::Group.new(sline, tag.to_s, name, options)
       group.parent = @current_node
       @current_node.questions << group
 
@@ -124,7 +124,7 @@ module Imperator
     end
 
     def _section(tag, name, options = {}, &block)
-      section = Ast::Section.new(sline, tag, name, options)
+      section = Ast::Section.new(sline, tag.to_s, name, options)
       section.parent = @current_node
       @current_node.sections << section
 
@@ -171,6 +171,10 @@ module Imperator
         _group(*args.unshift($1), &block)
       when /^s(?:ection)?(?:_(.+))?$/
         _section(*args.unshift($1), &block)
+      when /^grid(?:_(.+))?$/
+        _grid(*args.unshift($1), &block)
+      when /^repeater(?:_(.+))?$/
+        _repeater(*args.unshift($1), &block)
       when /^dependency_.+$/
         dependency(*args)
       when /^condition(?:_(.+))$/

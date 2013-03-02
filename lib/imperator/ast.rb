@@ -190,7 +190,7 @@ module Imperator
       end
     end
 
-    class Grid < Struct.new(:line, :text, :questions, :answers)
+    class Grid < Struct.new(:line, :tag, :text, :questions, :answers)
       include Identifiable
 
       attr_accessor :parent
@@ -207,7 +207,7 @@ module Imperator
       end
     end
 
-    class Repeater < Struct.new(:line, :text, :questions, :dependencies)
+    class Repeater < Struct.new(:line, :tag, :text, :questions, :dependencies)
       include Identifiable
 
       attr_accessor :parent
