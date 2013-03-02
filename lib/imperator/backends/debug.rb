@@ -87,6 +87,7 @@ module Imperator
 
       def survey(n, level, parent)
         im n, "SURVEY #{n.uuid} START\n", level
+        im n, "SOURCE: #{n.source}\n", level
         yield
         im n, "SURVEY #{n.uuid} END\n", level
       end

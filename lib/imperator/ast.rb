@@ -26,7 +26,7 @@ module Imperator
       end
     end
 
-    class Survey < Struct.new(:line, :name, :options, :sections, :translations)
+    class Survey < Struct.new(:line, :name, :options, :sections, :translations, :source)
       include Identifiable
 
       attr_accessor :parent

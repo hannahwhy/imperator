@@ -11,9 +11,10 @@ backend = Imperator::Backends.const_get(ENV['BACKEND'] || 'Debug')
 rev = `git rev-parse HEAD`.chomp
 puts "Imperator #{rev} - backend: #{backend}"
 
-file = ARGV[0]
+file = File.expand_path("../#{ARGV[0]}", __FILE__)
+data = File.read(file)
 
-p = Imperator::Parser.new(file)
+p = Imperator::Parser.new(data, file)
 p.parse
 
 v = Imperator::Verifier.new(p.surveys)

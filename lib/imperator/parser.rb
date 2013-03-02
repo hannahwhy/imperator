@@ -2,21 +2,23 @@ require 'imperator/ast'
 
 module Imperator
   class Parser < BasicObject
-    attr_accessor :file
+    attr_reader :data
+    attr_reader :source
     attr_reader :surveys
 
-    def initialize(file)
-      self.file = file
-
+    def initialize(data, source)
+      @data = data
+      @source = source
       @surveys = []
     end
 
     def parse
-      instance_eval(::File.read(file), file)
+      instance_eval(data, source)
     end
 
     def survey(name, options = {}, &block)
       survey = Ast::Survey.new(sline, name, options)
+      survey.source = source
       @surveys << survey
 
       _with_unwind do
@@ -155,7 +157,7 @@ module Imperator
 
     # Current line in the survey.
     def sline
-      ::Kernel.caller(1).detect { |l| l.include?(file) }.split(':')[1]
+      ::Kernel.caller(1).detect { |l| l.include?(source) }.split(':')[1]
     end
 
     # I really wish Surveyor didn't do this. :(
