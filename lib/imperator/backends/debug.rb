@@ -33,6 +33,7 @@ module Imperator
       def dependency(n, level, parent)
         str = rule_to_sexp(n.parsed_rule)
         im n, "DEP #{str}\n", level
+        im n, "REFERENCED CONDS: #{n.referenced_conditions.inspect}\n", level
         yield
       end
 

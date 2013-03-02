@@ -1,4 +1,5 @@
 require 'imperator/rule_parser'
+require 'set'
 
 module Imperator
   # Rules are chains of condition tags joined by ANDs and ORs.
@@ -20,6 +21,21 @@ module Imperator
       parser = RuleParser.new(rule)
       parser.parse
       @parsed_rule = parser.ast
+    end
+
+    def referenced_conditions
+      Set.new.tap do |cs|
+        visit_rule { |n| cs << n.name if n.respond_to?(:name) }
+      end
+    end
+
+    def visit_rule(rule = parsed_rule, &block)
+      yield rule
+
+      if rule.respond_to?(:conj)
+        visit_rule(rule.left, &block)
+        visit_rule(rule.right, &block)
+      end
     end
   end
 end

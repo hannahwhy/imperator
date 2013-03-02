@@ -9,6 +9,7 @@ module Imperator
     attr_reader :atag_count
     attr_reader :atag_expectations
     attr_reader :by_qref
+    attr_reader :ctag_count
     attr_reader :errors
     attr_reader :qtag_count
     attr_reader :qtag_expectations
@@ -18,6 +19,7 @@ module Imperator
       @atag_count = Hash.new(0)
       @atag_expectations = Hash.new(0)
       @by_qref = {}
+      @ctag_count = Hash.new(0)
       @errors = []
       @qtag_count = Hash.new(0)
       @qtag_expectations = Hash.new(0)
@@ -31,8 +33,9 @@ module Imperator
     def verify_survey(s)
       visit(s, true) do |n, level, prev, boundary|
         case n
-        when Question; inspect_question(n)
         when Condition; inspect_condition(n)
+        when Dependency, Validation; inspect_conditional(n)
+        when Question; inspect_question(n)
         end
       end
 
@@ -62,8 +65,22 @@ module Imperator
     def inspect_condition(c)
       pc = c.parsed_condition
 
+      ctag_count[[c.parent, c.tag]] += 1
+
       pending_question(pc.qtag, c) if pc.qtag
       pending_answer(pc.qtag, pc.atag, c) if pc.qtag && pc.atag
+    end
+
+    # When we see a dependency or validation, register references to all of its
+    # conditions.
+    def inspect_conditional(c)
+      c.referenced_conditions.each do |tag|
+        key = [c, tag]
+
+        unless ctag_count.has_key?(key)
+          ctag_count[key] = 0
+        end
+      end
     end
 
     # Find all unsatisfied expectations.
@@ -73,16 +90,21 @@ module Imperator
     end
     
     def find_bad_refs
-      aerrs = atag_count.select { |_, c| c < 1 }.map { |k, _| k }
-      qerrs = qtag_count.select { |_, c| c < 1 }.map { |qt, _| qt }
-
-      qerrs.each do |qt|
+      bad_refs(qtag_count) do |qt|
         errors << Error.new(Question, :bad_ref, qt, qtag_expectations[qt])
       end
 
-      aerrs.each do |qt, at|
+      bad_refs(atag_count) do |qt, at|
         errors << Error.new(Answer, :bad_ref, at, atag_expectations[[qt, at]])
       end
+
+      bad_refs(ctag_count) do |c, tag|
+        errors << Error.new(Condition, :bad_ref, tag, c)
+      end
+    end
+
+    def bad_refs(refs)
+      refs.each { |k, c| yield k if c < 1 }
     end
 
     def find_duplicate_refs
