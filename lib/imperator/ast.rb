@@ -26,7 +26,7 @@ module Imperator
       end
     end
 
-    class Survey < Struct.new(:line, :name, :options, :sections)
+    class Survey < Struct.new(:line, :name, :options, :sections, :translations)
       include Identifiable
 
       attr_accessor :parent
@@ -35,14 +35,25 @@ module Imperator
         super
 
         self.sections ||= []
+        self.translations ||= []
       end
 
       def children
-        sections
+        translations + sections
       end
     end
 
-    class Section < Struct.new(:line, :name, :options, :questions)
+    class Translation < Struct.new(:line, :lang, :path)
+      include Identifiable
+
+      attr_accessor :parent
+
+      def children
+        []
+      end
+    end
+
+    class Section < Struct.new(:line, :tag, :name, :options, :questions)
       include Identifiable
 
       attr_accessor :parent
@@ -150,8 +161,8 @@ module Imperator
         conditions
       end
     end
-    
-    class Group < Struct.new(:line, :name, :options, :questions, :dependencies)
+
+    class Group < Struct.new(:line, :tag, :name, :options, :questions, :dependencies)
       include Identifiable
 
       attr_accessor :parent
@@ -214,4 +225,3 @@ module Imperator
     end
   end
 end
-

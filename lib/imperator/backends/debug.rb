@@ -50,10 +50,10 @@ module Imperator
       end
 
       def group(n, level, parent)
-        im n, "GROUP #{n.uuid} START\n", level
+        im n, "GROUP #{(n.tag || '(none)')}: #{n.uuid} START\n", level
         im n, "#{n.name}\n", level
         yield
-        im n, "GROUP #{n.uuid} END\n", level
+        im n, "GROUP #{(n.tag || '(none)')}: #{n.uuid} END\n", level
       end
 
       def label(n, level, parent)
@@ -80,15 +80,20 @@ module Imperator
       end
 
       def section(n, level, parent)
-        im n, "SECTION #{n.name} #{n.uuid} START\n", level
+        im n, "SECTION #{n.tag || '(none)'}: #{n.name} #{n.uuid} START\n", level
         yield
-        im n, "SECTION #{n.name} #{n.uuid} END\n", level
+        im n, "SECTION #{n.tag || '(none)'}: #{n.name} #{n.uuid} END\n", level
       end
 
       def survey(n, level, parent)
-        im n, "SURVEY START\n", level
+        im n, "SURVEY #{n.uuid} START\n", level
         yield
-        im n, "SURVEY END\n", level
+        im n, "SURVEY #{n.uuid} END\n", level
+      end
+
+      def translation(n, level, parent)
+        im n, "TRANSLATION #{n.lang} => #{n.path} (#{n.uuid})\n", level
+        yield
       end
 
       def validation(n, level, parent)

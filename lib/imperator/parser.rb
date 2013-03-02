@@ -25,25 +25,11 @@ module Imperator
       end
     end
 
-    def section(name, options = {}, &block)
-      section = Ast::Section.new(sline, name, options)
-      section.parent = @current_node
-      @current_node.sections << section
-
-      _with_unwind do
-        @current_node = section
-        instance_eval(&block)
-      end
-    end
-
-    def group(name = nil, options = {}, &block)
-      group = Ast::Group.new(sline, name, options)
-      group.parent = @current_node
-      @current_node.questions << group
-
-      _with_unwind do
-        @current_node = group
-        instance_eval(&block)
+    def translations(spec)
+      spec.each do |lang, path|
+        translation = Ast::Translation.new(sline, lang, path)
+        translation.parent = @current_node
+        @current_node.translations << translation
       end
     end
 
@@ -125,6 +111,29 @@ module Imperator
       @current_dependency.conditions << condition
     end
 
+    def _group(tag, name = nil, options = {}, &block)
+      group = Ast::Group.new(sline, tag, name, options)
+      group.parent = @current_node
+      @current_node.questions << group
+
+      _with_unwind do
+        @current_question = nil
+        @current_node = group
+        instance_eval(&block)
+      end
+    end
+
+    def _section(tag, name, options = {}, &block)
+      section = Ast::Section.new(sline, tag, name, options)
+      section.parent = @current_node
+      @current_node.sections << section
+
+      _with_unwind do
+        @current_node = section
+        instance_eval(&block)
+      end
+    end
+
     def _with_unwind
       old_dependency = @current_dependency
       old_node = @current_node
@@ -158,6 +167,10 @@ module Imperator
         _answer(*args.unshift($1), &block)
       when /^l(?:abel)?(?:_(.+))?$/
         _label(*args.unshift($1), &block)
+      when /^g(?:roup)?(?:_(.+))?$/
+        _group(*args.unshift($1), &block)
+      when /^s(?:ection)?(?:_(.+))?$/
+        _section(*args.unshift($1), &block)
       when /^dependency_.+$/
         dependency(*args)
       when /^condition(?:_(.+))$/

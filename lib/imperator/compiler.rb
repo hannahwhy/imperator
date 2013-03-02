@@ -44,17 +44,18 @@ module Imperator
 
     def backend_method_for(n)
       case n
-      when Survey; :survey
-      when Section; :section
+      when Answer; :answer
+      when Condition; :condition
+      when Dependency; :dependency
+      when Grid; :grid
+      when Group; :group
       when Label; :label
       when Question; :question
-      when Answer; :answer
-      when Dependency; :dependency
-      when Validation; :validation
-      when Group; :group
-      when Condition; :condition
-      when Grid; :grid
       when Repeater; :repeater
+      when Section; :section
+      when Survey; :survey
+      when Translation; :translation
+      when Validation; :validation
       else raise "Unhandled node type #{n.class}" unless m
       end
     end
