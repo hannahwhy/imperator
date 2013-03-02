@@ -8,6 +8,7 @@ module Imperator
 
     attr_reader :atag_count
     attr_reader :atag_expectations
+    attr_reader :by_qref
     attr_reader :errors
     attr_reader :qtag_count
     attr_reader :qtag_expectations
@@ -16,6 +17,7 @@ module Imperator
     def initialize(surveys)
       @atag_count = Hash.new(0)
       @atag_expectations = Hash.new(0)
+      @by_qref = {}
       @errors = []
       @qtag_count = Hash.new(0)
       @qtag_expectations = Hash.new(0)
@@ -29,8 +31,8 @@ module Imperator
     def verify_survey(s)
       visit(s, true) do |n, level, prev, boundary|
         case n
-        when Question; verify_question(n)
-        when Condition; verify_condition(n)
+        when Question; inspect_question(n)
+        when Condition; inspect_condition(n)
         end
       end
 
@@ -39,8 +41,12 @@ module Imperator
       errors.empty?
     end
 
-    # When we see a question, register references to it and all of its answers.
-    def verify_question(q)
+    # When we see a question:
+    #
+    # 1. If the question has a non-empty tag, index the question by its tag.
+    # 2. Register references to it and all of its answers.
+    def inspect_question(q)
+      index_question(q) unless q.tag.empty?
       ref_question(q)
       q.answers.each { |a| ref_answer(q, a) }
     end
@@ -53,7 +59,7 @@ module Imperator
     #
     # Seeing a condition registers a reference to the condition and
     # expectations for the qref and aref if those refs exist.
-    def verify_condition(c)
+    def inspect_condition(c)
       pc = c.parsed_condition
 
       pending_question(pc.qtag, c) if pc.qtag
@@ -62,16 +68,34 @@ module Imperator
 
     # Find all unsatisfied expectations.
     def run_checks
+      find_bad_refs
+      find_duplicate_refs
+    end
+    
+    def find_bad_refs
       aerrs = atag_count.select { |_, c| c < 1 }.map { |k, _| k }
       qerrs = qtag_count.select { |_, c| c < 1 }.map { |qt, _| qt }
 
       qerrs.each do |qt|
-        errors << Error.new(Question, qt, qtag_expectations[qt])
+        errors << Error.new(Question, :bad_ref, qt, qtag_expectations[qt])
       end
 
       aerrs.each do |qt, at|
-        errors << Error.new(Answer, at, atag_expectations[[qt, at]])
+        errors << Error.new(Answer, :bad_ref, at, atag_expectations[[qt, at]])
       end
+    end
+
+    def find_duplicate_refs
+      by_qref.select { |k, v| v.length > 1 }.each do |k, vs|
+        errors << Error.new(Question, :duplicate_qref, k, vs)
+      end
+    end
+
+    def index_question(q)
+      key = q.tag
+
+      by_qref[key] = [] unless by_qref.has_key?(key)
+      by_qref[key] << q
     end
 
     def ref_question(q)
@@ -99,7 +123,7 @@ module Imperator
       end
     end
 
-    class Error < Struct.new(:node_type, :key, :expected_by)
+    class Error < Struct.new(:node_type, :error_type, :key, :at_fault)
     end
   end
 end

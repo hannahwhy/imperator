@@ -30,5 +30,13 @@ b.write
 puts '-' * 78
 
 v.errors.each do |e|
-  puts "#{file}:#{e.expected_by.line}: #{e.node_type} #{e.key} is not defined"
+  case e.error_type
+  when :bad_ref then
+    puts "#{file}:#{e.at_fault.line}: #{e.node_type} #{e.key} is not defined"
+  when :duplicate_qref then
+    puts "#{file}: question tag #{e.key} is used multiple times"
+    e.at_fault.each do |n|
+      puts "  at #{file}:#{n.line}"
+    end
+  end
 end
