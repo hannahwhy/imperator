@@ -18,7 +18,7 @@ require 'imperator/parser'
 require 'imperator/text_extractor'
 require 'pp'
 
-file = File.expand_path("../#{ARGV[0]}", __FILE__)
+file = ARGV[0]
 data = File.read(file)
 
 p = Imperator::Parser.new(data, file)
