@@ -21,6 +21,7 @@ module Imperator
           yield
         else
           im n, "ANS #{tag(n)}: #{n.text} (#{n.uuid}, type: #{n.type})\n", level
+          im n, "CONTEXT: #{n.tcontext}\n", level
           yield
         end
       end
@@ -39,6 +40,7 @@ module Imperator
 
       def grid(n, level, parent)
         im n, "GRID #{tag(n)} #{n.uuid} START\n", level
+        im n, "CONTEXT: #{n.tcontext}\n", level
         @in_grid = true
         @qbuf = []
         @abuf = []
@@ -68,6 +70,7 @@ module Imperator
           yield
         else
           im n, "QUESTION #{tag(n)}: #{n.uuid} START\n", level
+          im n, "CONTEXT: #{n.tcontext}\n", level
           im n, "#{n.text}\n", level
           yield
           im n, "QUESTION #{tag(n)}: #{n.uuid} END\n", level
