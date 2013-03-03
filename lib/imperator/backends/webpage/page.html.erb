@@ -1,8 +1,12 @@
 <html>
   <head>
     <title><%= survey_title %></title>
-    <script src="file:///<%= asset_path('jquery.min.js') %>"></script>
-    <script src="file:///<%= asset_path('evaluator.js') %>"></script>
+    <script src="<%= external_asset_path('jquery.min.js') %>"></script>
+    <script src="<%= external_asset_path('evaluator.js') %>"></script>
+    <script src="<%= external_asset_path('Gettext.js') %>"></script>
+    <script src="<%= external_asset_path('translate.js') %>"></script>
+    <link rel="gettext" type="application/x-po" href="en_US.po" />
+    <link rel="gettext" type="application/x-po" href="es_US.po" />
   </head>
   <body>
       <script type="text/javascript">
@@ -11,6 +15,9 @@
       };
       <%= survey_js %>
     </script>
+    <p>
+      Switch locale: <a id="use-en_US" href="#">en_US</a> | <a id="use-es_US" href="#">es_US</a>
+    </p>
     <%= survey_html %>
   </body>
 </html>
