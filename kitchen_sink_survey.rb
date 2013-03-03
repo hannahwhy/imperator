@@ -63,7 +63,7 @@ survey "Kitchen Sink survey" do
     dependency :rule => "A"
     condition_A :q_montypython5, "==", {:string_value => "What do you mean? An African or European swallow?", :answer_reference => "1"}
 
-    q_cooling_1 "How do you cool your home?", :pick => :one
+    q_cooling_1 "How do you cool your home?", :pick => :one, :tcontext => 'cooling'
     a_1 "Fans"
     a_2 "Window AC"
     a_3 "Central AC"
@@ -132,13 +132,13 @@ survey "Kitchen Sink survey" do
       q "Quantity"
       a :float
 
-      q "Unit", :pick => :one, :display_type => :dropdown
+      q "Unit", :pick => :one, :display_type => :dropdown, :tcontext => 'oil amount'
       a "Barrels"
       a "Gallons"
       a "Quarts"
     end
 
-    q "Choose your Illinois county", :pick => :one, :display_type => :dropdown
+    q "Choose your Illinois county", :pick => :one, :display_type => :dropdown, :tcontext => 'county name'
     ["Adams","Alexander","Bond", "Boone",
         "Brown","Bureau","Calhoun","Carroll","Cass",
         "Champaign", "Christian", "Clark","Clay",
@@ -169,10 +169,10 @@ survey "Kitchen Sink survey" do
     a "Fish"
     a "I don't eat meats!!!", :is_exclusive => true
 
-    q "All out of ideas for questions?", :pick => :one, :display_type => :inline
-    a "yes"
-    a "maybe"
-    a "no"
+    q "All out of ideas for questions?", :pick => :one, :display_type => :inline, :tcontext => 'ideas'
+    a "Yes", :tcontext => 'no more'
+    a "Maybe"
+    a "No", :tcontext => 'have more'
     a "I don't know"
   end
 
@@ -242,12 +242,12 @@ survey "Kitchen Sink survey" do
     q "When would you like to schedule your next appointment?"
     a :datetime
 
-    q_car "Do you own a car?", :pick => :one
+    q_car "Do you own a car?", :pick => :one, :tcontext => 'own a car'
     a_y "Yes"
     a_n "No"
 
     # Repeaters allow multiple responses to a question or set of questions
-    repeater "Tell us about the cars you own" do
+    repeater "Tell us about the cars you own", :tcontext => 'cars' do
       dependency :rule => "A"
       condition_A :q_car, "==", :a_y
       q "Make", :pick => :one, :display_type => :dropdown
@@ -257,7 +257,7 @@ survey "Kitchen Sink survey" do
       a "Ferrari"
       a "Tesla"
       a "Honda"
-      a "Other weak brand"
+      a "Other weak brand", :tcontext => 'jokingly'
       q "Model"
       a :string
       q "Year"
