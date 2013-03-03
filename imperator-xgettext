@@ -1,0 +1,55 @@
+#!/usr/bin/env ruby
+
+# Generates a POT from a survey file.  The POT will be written to standard
+# output and will contain msgids of all strings in all surveys in the file.
+#
+# Usage:
+#
+#   imperator-xgettext SURVEY > POTFILE
+#
+# By convention, POT filenames should end in .pot.
+#
+# The resulting POT can be used with standard gettext tools for generating new
+# text domains, editing, merging, usage in programs, etc.
+
+$LOAD_PATH.unshift(File.expand_path('../lib', __FILE__))
+
+require 'imperator/parser'
+require 'imperator/text_extractor'
+require 'pp'
+
+file = File.expand_path("../#{ARGV[0]}", __FILE__)
+data = File.read(file)
+
+p = Imperator::Parser.new(data, file)
+p.parse
+
+e = Imperator::TextExtractor.new(p.surveys)
+e.extract
+
+p.surveys.each do |s|
+  msgid_index = e.extractions[s].each_with_object({}) do |(n, ts), h|
+    ts.each do |t|
+      key = [t, n.tcontext]
+      h[key] = [] unless h.has_key?(key)
+      h[key] << n
+    end
+  end
+
+  msgid_index.sort_by { |_, ns| ns.map { |n| n.line.to_i }.min }.each do |(t, ctx), ns|
+    entry = ""
+
+    ns.each do |n|
+      entry << %Q{#: #{file}:#{n.line}\n}
+    end
+
+    if !ctx.empty?
+      entry << %Q{msgctxt "#{ctx}"\n}
+    end
+
+    entry << %Q{msgid "#{t}"\n}
+    entry << %Q{msgstr ""\n}
+
+    puts entry.strip
+  end
+end
