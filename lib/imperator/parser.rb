@@ -102,6 +102,7 @@ module Imperator
     def _answer(tag, t1, t2 = nil, options = {})
       answer = Ast::Answer.new(sline, t1, t2, tag.to_s)
       answer.parent = @current_question
+      answer.options = options
       @current_question.answers << answer
       @current_answer = answer
     end

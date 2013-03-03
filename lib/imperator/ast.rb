@@ -104,7 +104,7 @@ module Imperator
       end
     end
 
-    class Answer < Struct.new(:line, :t1, :t2, :tag, :validations)
+    class Answer < Struct.new(:line, :t1, :t2, :tag, :validations, :options)
       include Identifiable
 
       attr_accessor :parent
