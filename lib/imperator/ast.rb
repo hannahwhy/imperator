@@ -26,9 +26,19 @@ module Imperator
       end
     end
 
-    class Survey < Struct.new(:line, :name, :options, :sections, :source)
+    module I18n
+      def tcontext
+        @tcontext ||= if parent.respond_to?(:tcontext)
+                        [options[:tcontext], parent.tcontext].flatten.compact
+                      else
+                        [options[:tcontext]]
+                      end.reverse.join("|")
+      end
+    end
 
+    class Survey < Struct.new(:line, :name, :options, :sections, :source)
       include Identifiable
+      include I18n
 
       attr_accessor :parent
 
@@ -45,6 +55,7 @@ module Imperator
 
     class Section < Struct.new(:line, :tag, :name, :options, :questions)
       include Identifiable
+      include I18n
 
       attr_accessor :parent
 
@@ -63,6 +74,7 @@ module Imperator
 
     class Label < Struct.new(:line, :text, :tag, :options, :dependencies)
       include Identifiable
+      include I18n
 
       attr_accessor :parent
 
@@ -79,6 +91,7 @@ module Imperator
 
     class Question < Struct.new(:line, :text, :tag, :options, :answers, :dependencies)
       include Identifiable
+      include I18n
 
       attr_accessor :parent
 
@@ -96,6 +109,7 @@ module Imperator
 
     class Answer < Struct.new(:line, :t1, :t2, :tag, :validations, :options)
       include Identifiable
+      include I18n
 
       attr_accessor :parent
 
@@ -154,6 +168,7 @@ module Imperator
 
     class Group < Struct.new(:line, :tag, :name, :options, :questions, :dependencies)
       include Identifiable
+      include I18n
 
       attr_accessor :parent
 
@@ -180,8 +195,9 @@ module Imperator
       end
     end
 
-    class Grid < Struct.new(:line, :tag, :text, :questions, :answers)
+    class Grid < Struct.new(:line, :tag, :text, :options, :questions, :answers)
       include Identifiable
+      include I18n
 
       attr_accessor :parent
 
@@ -197,8 +213,9 @@ module Imperator
       end
     end
 
-    class Repeater < Struct.new(:line, :tag, :text, :questions, :dependencies)
+    class Repeater < Struct.new(:line, :tag, :text, :options, :questions, :dependencies)
       include Identifiable
+      include I18n
 
       attr_accessor :parent
 
