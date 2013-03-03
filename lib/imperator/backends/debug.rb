@@ -112,16 +112,16 @@ module Imperator
         buffer << sprintf("%05d", n.line) << " " << ("  " * level) << msg
       end
 
+      def tag(n)
+        n.tag.empty? ? '(no tag)' : n.tag
+      end
+
       def rule_to_sexp(rule)
         if rule.respond_to?(:conj)
           "(#{rule.conj.op} #{rule_to_sexp(rule.left)} #{rule_to_sexp(rule.right)})"
         elsif rule.respond_to?(:name)
           rule.name
         end
-      end
-
-      def tag(n)
-        n.tag.empty? ? '(no tag)' : n.tag
       end
     end
   end

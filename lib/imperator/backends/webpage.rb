@@ -24,116 +24,159 @@ module Imperator
         puts template.result(binding)
       end
 
-      def logue
-        began = Time.now
-        yield
-        finished = Time.now
-        @elapsed = finished - began
+      def prologue
       end
 
-      def survey(s)
-        @survey_title = s.name
-
-        h << "<article>"
-        h << "<h1>#{survey_title}</h1>"
-        yield
-        h << "</article>"
-      end
-      
-      def section(se, s)
-        h << "<section>"
-        h << "<header><h1>#{se.name}</h1></header>"
-        ol { yield }
-        h << "</section>"
+      def epilogue
       end
 
-      def label(q, se)
-        h << %Q{<li id="#{q.uuid}" data-ref="#{q.tag}" class="imperator-label">}
-        h << %Q{<label>#{q.text}</label><li>}
-        h << %Q{</li>}
-      end
-
-      def question(q, se)
-        h << %Q{<li id="#{q.uuid}" data-ref="#{q.tag}" class="imperator-question">}
-        h << "<label>#{q.text}</label>"
-        h << "</li>"
-
-        answers(q)
-      end
-
-      def answers(q)
-        case q.options[:pick]
-        when :one then pick_one_answers(q)
-        when :any then check_answers(q)
-        else
-          h << "(unhandled)"
+      def answer(n, level, parent, &block)
+        case @qtype
+        when :radio then pick_answer('radio', n, level, parent, block)
+        when :checkbox then pick_answer('checkbox', n, level, parent, block)
+        else yield
         end
       end
 
-      def pick_one_answers(q)
-        case q.options[:display_type]
-        when :slider then slider_answers(q)
-        else radio_answers(q)
-        end
-      end
-
-      def slider_answers(q)
-        min = 0
-        max = q.answers.length
-        id = "slider-#{q.uuid}"
+      def pick_answer(type, n, level, parent, block)
+        name = n.parent.uuid
 
         h << %Q{
-          <input type="range"
-                 name="#{q.tag || q.uuid}"
-                 id="#{id}"
-                 data-q-uuid="#{q.uuid}"
-                 class="imperator-answer imperator-answer-slider"
-                 min="#{min}"
-                 max="#{max}"
-          </input>
+          <li>
         }
 
-        values = q.answers.map { |a| a.text.inspect }.join(',')
+        if n.type == :other
+          h << %Q{
+            <label for="#{n.uuid}">Other</label>
+            <input type="text" name="#{name}" id="#{n.uuid}" data-uuid="#{n.uuid}" data-tag="#{n.tag}" class="imperator-answer imperator-answer-pick-one imperator-answer-other">
+          }
 
-        j << %Q{
-          window.survey.sliderValues["#{id}"] = [#{values}];
-        }
-      end
+          j << %Q{
+            $(function() {
+                $("##{n.uuid}").focus(function() {
+                  $('input[name="#{name}"]').prop('checked', '');
+                });
+            });
+          }
+        elsif n.type == :omit
+          h << %Q{
+            <input type="#{type}" name="#{name}" id="#{n.uuid}" data-uuid="#{n.uuid}" data-tag="#{n.tag}" value="#{n.uuid}" class="imperator-answer imperator-answer-pick-one imperator-answer-omit">
+            <label for="#{n.uuid}">Omit</label>
+          }
 
-      def radio_answers(q)
-        ol do
-          q.answers.each { |a| h << pick('radio', a, q) }
+          j << %Q{
+            $(function() {
+                $("##{n.uuid}").change(function() {
+                  var sel = $(this).prop('checked');
+
+                  $('input[name="#{name}"]').prop('checked', !sel).prop('enabled', !sel)
+                });
+            });
+          }
+        else
+          h << %Q{
+            <input type="#{type}" name="#{name}" id="#{n.uuid}" data-uuid="#{n.uuid}" data-tag="#{n.tag}" value="#{n.uuid}" class="imperator-answer imperator-answer-pick-one">
+            <label for="#{n.uuid}">#{n.text}</label>
+          }
         end
-      end
 
-      def check_answers(q)
-        ol do
-          q.answers.each { |a| h << pick('checkbox', a, q) }
-        end
-      end
+        block.call
 
-      def pick(type, a, q)
-        %Q{<li>
-             <input type="#{type}"
-                    name="#{q.tag || q.uuid}"
-                    id="#{a.uuid}"
-                    data-ref="#{a.tag}"
-                    data-q-uuid="#{q.uuid}"
-                    class="imperator-answer imperator-answer-pick"
-                    value="#{a.uuid}">
-               #{a.text}
-             </input>
-           </li>
+        h << %Q{
+            </input>
+          </li>
         }
       end
 
-      def grid(q, se)
+      def condition(n, level, parent)
+        yield
       end
 
-      def group(q, se)
+      def dependency(n, level, parent)
+        yield
       end
 
-      def repeater(q, se)
+      def grid(n, level, parent)
+        yield
+      end
+
+      def group(n, level, parent)
+        yield
+      end
+
+      def label(n, level, parent)
+        yield
+      end
+
+      def question(n, level, parent)
+        h << %Q{
+          <li data-uuid="#{n.uuid}" data-tag="#{n.tag}" class="imperator-question">
+            #{n.text}
+            <ol class="imperator-answers">
+        }
+
+        pick = n.options[:pick]
+
+        @qtype = case pick
+                 when :one then :radio
+                 when :any then :checkbox
+                 end
+
+        yield
+
+        h << %Q{
+            </ol>
+          </li>
+        }
+      end
+
+      def repeater(n, level, parent)
+        yield
+      end
+
+      def section(n, level, parent)
+        h << %Q{
+          <section data-uuid="#{n.uuid}" data-tag="#{n.tag}" class="imperator-section">
+            <header>
+              <h1>#{n.name}</h1>
+            </header>
+            <ol class="imperator-questions">
+        }
+
+        yield
+
+        h << %Q{
+            </ol>
+          </section>
+        }
+      end
+
+      def survey(n, level, parent)
+        start = Time.now
+
+        h << %Q{
+          <article data-uuid="#{n.uuid}" class="imperator-survey">
+            <header>
+              <h1>#{n.name}</h1>
+            </header>
+        }
+
+        yield
+
+        h << %Q{
+          </article>
+        }
+
+        done = Time.now
+        @elapsed = done - start
+      end
+
+      def translation(n, level, parent)
+        yield
+      end
+
+      def validation(n, level, parent)
+        yield
       end
 
       def asset(path)
@@ -142,12 +185,6 @@ module Imperator
 
       def asset_path(path)
         File.expand_path("../webpage/#{path}", __FILE__)
-      end
-
-      def ol
-        h << "<ol>"
-        yield
-        h << "</ol>"
       end
     end
   end
