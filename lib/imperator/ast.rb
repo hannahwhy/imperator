@@ -26,7 +26,8 @@ module Imperator
       end
     end
 
-    class Survey < Struct.new(:line, :name, :options, :sections, :translations, :source)
+    class Survey < Struct.new(:line, :name, :options, :sections, :source)
+
       include Identifiable
 
       attr_accessor :parent
@@ -35,21 +36,10 @@ module Imperator
         super
 
         self.sections ||= []
-        self.translations ||= []
       end
 
       def children
-        translations + sections
-      end
-    end
-
-    class Translation < Struct.new(:line, :lang, :path)
-      include Identifiable
-
-      attr_accessor :parent
-
-      def children
-        []
+        sections
       end
     end
 

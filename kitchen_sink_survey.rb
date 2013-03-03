@@ -1,14 +1,6 @@
 # encoding: UTF-8
 survey "Kitchen Sink survey" do
-  translations :es => 'translations/languages.es.yml',
-    :he => 'translations/languages.he.yml'
-
-  section_one "One" do
-    g_hello "Hello" do
-      q_name "What is your name?"
-      a_name :string, :help_text => "My name is..."
-    end
-  end
+  languages :es
 
   section "Basic questions" do
     # A label is a question that accepts no answers

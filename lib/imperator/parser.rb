@@ -27,13 +27,6 @@ module Imperator
       end
     end
 
-    def translations(spec)
-      spec.each do |lang, path|
-        translation = Ast::Translation.new(sline, lang, path)
-        translation.parent = @current_node
-        @current_node.translations << translation
-      end
-    end
 
     def dependency(options = {})
       rule = options[:rule]

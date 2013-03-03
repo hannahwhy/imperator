@@ -93,11 +93,6 @@ module Imperator
         im n, "SURVEY #{n.uuid} END\n", level
       end
 
-      def translation(n, level, parent)
-        im n, "TRANSLATION #{n.lang} => #{n.path} (#{n.uuid})\n", level
-        yield
-      end
-
       def validation(n, level, parent)
         im n, "VDN #{n.uuid}\n", level
         im n, n.parsed_rule.inspect + "\n", level

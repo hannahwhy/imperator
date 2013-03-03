@@ -171,10 +171,6 @@ module Imperator
         @elapsed = done - start
       end
 
-      def translation(n, level, parent)
-        yield
-      end
-
       def validation(n, level, parent)
         yield
       end
