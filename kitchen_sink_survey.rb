@@ -1,7 +1,5 @@
 # encoding: UTF-8
 survey "Kitchen Sink survey" do
-  languages :es
-
   section "Basic questions" do
     # A label is a question that accepts no answers
     label "These questions are examples of the basic supported input types"
