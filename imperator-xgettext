@@ -30,7 +30,8 @@ e.extract
 p.surveys.each do |s|
   msgid_index = e.extractions[s].each_with_object({}) do |(n, ts), h|
     ts.each do |t|
-      key = [t, n.tcontext]
+      text = t.gsub("\n", " ")
+      key = [text, n.tcontext]
       h[key] = [] unless h.has_key?(key)
       h[key] << n
     end
