@@ -54,6 +54,7 @@ module Imperator
       when Repeater; :repeater
       when Section; :section
       when Survey; :survey
+      when Translation; :translation
       when Validation; :validation
       else raise "Unhandled node type #{n.class}" unless m
       end

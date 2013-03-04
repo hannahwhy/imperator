@@ -76,7 +76,7 @@ module Imperator
         else
           h << %Q{
             <input type="#{type}" name="#{name}" id="#{n.uuid}" data-uuid="#{n.uuid}" data-tag="#{n.tag}" value="#{n.uuid}" class="imperator-answer imperator-answer-pick-one">
-            <label for="#{n.uuid}" data-i18n-context="#{n.tcontext}" data-i18n-key="#{n.uuid}" class="imperator-i18n">#{n.text}</label>
+            <label for="#{n.uuid}">#{n.text}</label>
           }
         end
 
@@ -111,9 +111,7 @@ module Imperator
       def question(n, level, parent)
         h << %Q{
           <li data-uuid="#{n.uuid}" data-tag="#{n.tag}" class="imperator-question">
-            <span data-i18n-context="#{n.tcontext}" data-i18n-key="#{n.uuid}" class="imperator-i18n">
-              #{n.text}
-            </span>
+            #{n.text}
             <ol class="imperator-answers">
         }
 
@@ -140,7 +138,7 @@ module Imperator
         h << %Q{
           <section data-uuid="#{n.uuid}" data-tag="#{n.tag}" class="imperator-section">
             <header>
-              <h1 data-i18n-context="#{n.tcontext}" data-i18n-key="#{n.uuid}" class="imperator-i18n">#{n.name}</h1>
+              <h1>#{n.name}</h1>
             </header>
             <ol class="imperator-questions">
         }
@@ -159,7 +157,7 @@ module Imperator
         h << %Q{
           <article data-uuid="#{n.uuid}" class="imperator-survey">
             <header>
-              <h1 class="imperator-i18n" data-i18n-context="#{n.tcontext}" data-i18n-key="#{n.uuid}">#{n.name}</h1>
+              <h1>#{n.name}</h1>
             </header>
         }
 
@@ -173,16 +171,16 @@ module Imperator
         @elapsed = done - start
       end
 
+      def translation(n, level, parent)
+        yield
+      end
+
       def validation(n, level, parent)
         yield
       end
 
       def asset(path)
         File.read(asset_path(path))
-      end
-
-      def external_asset_path(path)
-        "lib/imperator/backends/webpage/#{path}"
       end
 
       def asset_path(path)

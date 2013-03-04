@@ -21,7 +21,6 @@ module Imperator
           yield
         else
           im n, "ANS #{tag(n)}: #{n.text} (#{n.uuid}, type: #{n.type})\n", level
-          im n, "CONTEXT: #{n.tcontext}\n", level
           yield
         end
       end
@@ -40,7 +39,6 @@ module Imperator
 
       def grid(n, level, parent)
         im n, "GRID #{tag(n)} #{n.uuid} START\n", level
-        im n, "CONTEXT: #{n.tcontext}\n", level
         @in_grid = true
         @qbuf = []
         @abuf = []
@@ -70,7 +68,6 @@ module Imperator
           yield
         else
           im n, "QUESTION #{tag(n)}: #{n.uuid} START\n", level
-          im n, "CONTEXT: #{n.tcontext}\n", level
           im n, "#{n.text}\n", level
           yield
           im n, "QUESTION #{tag(n)}: #{n.uuid} END\n", level
@@ -94,6 +91,11 @@ module Imperator
         im n, "SOURCE: #{n.source}\n", level
         yield
         im n, "SURVEY #{n.uuid} END\n", level
+      end
+
+      def translation(n, level, parent)
+        im n, "TRANSLATION #{n.lang} => #{n.path} (#{n.uuid})\n", level
+        yield
       end
 
       def validation(n, level, parent)

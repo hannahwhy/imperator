@@ -27,7 +27,12 @@ module Imperator
       end
     end
 
-    def languages(spec)
+    def translations(spec)
+      spec.each do |lang, path|
+        translation = Ast::Translation.new(sline, lang, path)
+        translation.parent = @current_node
+        @current_node.translations << translation
+      end
     end
 
     def dependency(options = {})
@@ -57,8 +62,8 @@ module Imperator
       @current_dependency = validation
     end
 
-    def _grid(tag, text, options = {}, &block)
-      grid = Ast::Grid.new(sline, tag.to_s, text, options)
+    def _grid(tag, text, &block)
+      grid = Ast::Grid.new(sline, tag.to_s, text)
       grid.parent = @current_node
       @current_node.questions << grid
 
@@ -69,8 +74,8 @@ module Imperator
       end
     end
 
-    def _repeater(tag, text, options = {}, &block)
-      repeater = Ast::Repeater.new(sline, tag.to_s, text, options)
+    def _repeater(tag, text, &block)
+      repeater = Ast::Repeater.new(sline, tag.to_s, text)
       repeater.parent = @current_node
       @current_node.questions << repeater
 
@@ -95,18 +100,9 @@ module Imperator
     end
 
     def _answer(tag, t1, t2 = nil, options = {})
-      answer = Ast::Answer.new(sline, t1, nil, tag.to_s)
-
-      if t2.is_a?(::Symbol)
-        answer.t2 = t2
-        answer.options = options
-      elsif t2.is_a?(::Hash) && options.empty?
-        answer.options = t2
-      else
-        answer.options = options
-      end
-
+      answer = Ast::Answer.new(sline, t1, t2, tag.to_s)
       answer.parent = @current_question
+      answer.options = options
       @current_question.answers << answer
       @current_answer = answer
     end
