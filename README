@@ -1,11 +1,1 @@
-Imperator - after the scout comes the army
-------------------------------------------
-
-Imperator is a bunch of hackery and investigation into a replacement for
-NUBIC's Surveyor.
-
-I've run it at one point or another on:
-
-* Ruby 1.9.3
-* JRuby 1.6.7.2 in 1.9 mode
-* Rubinius 2.0.0dev (=> 300864cecf8a452a0b2047b32d5518930ee08184) in 1.9 mode
+This repository has moved to https://github.com/NUBIC/cartographer.git.
